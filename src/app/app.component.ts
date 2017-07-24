@@ -1,5 +1,6 @@
 import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import * as D3 from 'd3';
+import { Path, Selection } from 'd3';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/timer'
 import 'rxjs/add/operator/map'
@@ -19,16 +20,15 @@ export class AppComponent implements AfterViewInit {
     //private htmlElement: HTMLElement;
     private host;
     private svg;
-
     private timeCoordinates = new TimeCoordinates();
     //component sizing
     private circleRadius = 40;
     private pointerBoxHeight = 70;
-    private pointerBoxWidth = 140;
+    private pointerBoxWidthMinutes = 10;
 
     //window configuration
-    private canvasWidth = 1400;
-    private canvasHeight = 600;
+    private canvasWidth: number;
+    private canvasHeight: number;
     private originalWidthMinutes = 90;
     private canvasWidthMinutes = this.originalWidthMinutes;
     private originalRelativeStartMinutes = -15;
@@ -110,49 +110,49 @@ export class AppComponent implements AfterViewInit {
             type: 'Rest',
             dose: '10 mCi',
             startTime: new Date('2017/06/27 17:20'),
-            length: 8.7
+            length: 8
         },
         {
             name: 'SCAN 2',
             type: 'Stress',
             dose: '20 mCi',
             startTime: new Date('2017/06/27 17:35'),
-            length: 8.7
+            length: 7
         },
         {
             name: 'SCAN 1',
             type: 'Rest',
             dose: '10 mCi',
             startTime: new Date('2017/06/27 18:20'),
-            length: 8.7
+            length: 10
         },
         {
             name: 'SCAN 2',
             type: 'Stress',
             dose: '20 mCi',
             startTime: new Date('2017/06/27 18:35'),
-            length: 8.7
+            length: 6
         }
     ]
 
     private upPointerSVG = 'M 0 70 L 0 30 Q 0 10 20 10 L 60 10 L 70 0 L 80 10 L 120 10 Q 140 10 140 30 L 140 70';
-    private roundedRectTop = 'M 0 40 L 0 10 Q 0 0 10 0 L 130 0 Q 140 0 140 10 L 140 40';
-    private roundedRectBottom = 'M 0 40 L 0 50 Q 0 60 10 60 L 130 60 Q 140 60 140 50 L 140 40';
 
     ngAfterViewInit() {
-        //this.htmlElement = this.element.nativeElement;
         this.host = D3.select(this.element.nativeElement);
         this.canvasWidth = this.host.node().getBoundingClientRect().width;
-        this.canvasHeight = this.host.node().getBoundingClientRect().height;
-        this.timeCoordinates.rescale(this.canvasWidthMinutes, this.canvasWidth, this.relativeStartMinutes);
+        if (this.canvasWidth < 800) {
+            //force it to take up at least 800 pixels in width, or more if space allows.
+            this.canvasWidth = 800;
+        }
 
+        D3.select(window).on('resize', () => this.setWindowSize());
         //redraw every 15 seconds
         let countDown = Observable.timer(15 * 1000, 15 * 1000)
             .subscribe(() => {
                 this.drawDoseSVG()
             });
         this.updateDemoTimes();
-        this.drawDoseSVG();
+        this.setWindowSize();
     }
     //DEMO only to hard code time in the future
     private updateDemoTimes(): void {
@@ -175,6 +175,13 @@ export class AppComponent implements AfterViewInit {
         this.scanData[3].startTime = new Date((nowMinutes + 67) * 60000);
     }
 
+    private setWindowSize(): void {
+        //only rescale based on height. We don't want resize to change scale on x axis.
+        this.canvasHeight = this.host.node().getBoundingClientRect().height;
+        this.timeCoordinates.rescale(this.canvasWidthMinutes, this.canvasWidth, this.relativeStartMinutes);
+
+        this.drawDoseSVG();
+    }
     updateDataArray() {
 
         if (this.doseData.length > this.configData.length) {
@@ -193,8 +200,8 @@ export class AppComponent implements AfterViewInit {
 
     private zoomed() {
         if (D3.event.transform.k === 1) {
-           //pan
-           //only temporarily update the relativeStartMinutes, the final zoomEnd is when the relative start minutes are updated.
+            //pan
+            //only temporarily update the relativeStartMinutes, the final zoomEnd is when the relative start minutes are updated.
             this.timeCoordinates.rescale(this.canvasWidthMinutes,
                 this.canvasWidth,
                 this.relativeStartMinutes - (this.canvasWidthMinutes * D3.event.transform.x / this.canvasWidth));
@@ -219,7 +226,7 @@ export class AppComponent implements AfterViewInit {
         }
     }
 
-    private executeZoom(factor: number) {
+    public executeZoom(factor: number) {
         this.canvasWidthMinutes = this.canvasWidthMinutes + (this.originalWidthMinutes * factor);
         this.timeCoordinates.rescale(this.canvasWidthMinutes,
             this.canvasWidth,
@@ -227,8 +234,16 @@ export class AppComponent implements AfterViewInit {
         this.drawDoseSVG();
     }
 
-    private drawDoseSVG(): void {
+    public resetZoom(): void {
+        this.canvasWidthMinutes = this.originalWidthMinutes;
+        this.relativeStartMinutes = this.originalRelativeStartMinutes;
+        this.timeCoordinates.rescale(this.canvasWidthMinutes,
+            this.canvasWidth,
+            this.relativeStartMinutes);
+        this.drawDoseSVG();
+    }
 
+    private drawDoseSVG(): void {
         let doseWidth = 200;
         let nowX: number = this.timeCoordinates.getX(new Date());
         this.updateDataArray();
@@ -284,6 +299,8 @@ export class AppComponent implements AfterViewInit {
             .attr("stop-color", d => d.color)
             .attr("stop-opacity", 0.4);
 
+
+        let scaledRadius = AppComponent.getCircleRadius(this.timeCoordinates.getWidth(this.pointerBoxWidthMinutes));
         //draw dose box
         let rect = this.svg.selectAll('doseRect')
             .data(this.doseData)
@@ -312,106 +329,14 @@ export class AppComponent implements AfterViewInit {
             .data(this.doseData)
             .enter()
             .append('svg:line')
-            .attr('x1', 0)
+            .attr('x1', d => this.timeCoordinates.getX(d.milestones[0].time))
             .attr('y1', d => d.y)
             .attr('x2', d => d.x + this.timeCoordinates.getWidth(d.doseWindowMinutes))
             .attr('y2', d => d.y)
             .attr('stroke-width', 2)
             .attr('stroke', d => d.color);
 
-        //the white dose circle
-        let circle = this.svg.selectAll('circle')
-            .data(this.doseData)
-            .enter()
-            .append('circle')
-            .attr('cx', d => d.x)
-            .attr('cy', d => d.y)
-            .attr('r', this.circleRadius)
-            .attr('fill', 'white');
-
-        //the label on the dose circle
-        let arcText = this.svg.selectAll('arcText')
-            .data(this.doseData)
-            .enter()
-            .append('text')
-            .attr('x', d => d.x)
-            .attr('y', d => d.y)
-            .attr('text-anchor', 'middle')
-            .attr('fill', d => d.arcColor)
-            .style("font-size", "24px")
-            .text(d => this.timeCoordinates.minutesLabel(d.minutesAway))
-            .append('tspan')
-            .attr('x', d => d.x)
-            .attr('y', d => d.y + 14)
-            .style("font-size", "12px")
-            .text(d => { if (d.minutesAway < 0) { return ''; } else { return 'AWAY'; } });
-
-        //data for arc for dose circle
-        let arcdata = D3.arc()
-            .startAngle(0)
-            .endAngle((d: any) => this.timeCoordinates.minutesAwayToRadius(d.minutesAway))
-            .innerRadius(this.circleRadius * 0.92)
-            .outerRadius(this.circleRadius * 1.08)
-            .cornerRadius(20);
-
-        //the time arc surrounding a dose circle
-        let arc = this.svg.selectAll('arcProgress')
-            .data(this.doseData)
-            .enter()
-            .append('svg:path')
-            .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')')
-            .attr('fill', d => d.arcColor)
-            .attr('d', arcdata);
-
-        //arrival time pointer
-        let arrivalPointer = this.svg.selectAll('arrivalPointer')
-            .data(this.doseData)
-            .enter()
-            .append('svg:path')
-            .attr('transform', d => 'translate(' + (d.x - this.pointerBoxWidth / 2) + ',' + (this.canvasHeight - this.pointerBoxHeight) + ')')
-            .attr('fill', d => d.color)
-            .attr('d', this.upPointerSVG);
-
-        //the label on the arrival time pointer
-        let arrivalTextBox = this.svg.selectAll('arrivalText')
-            .data(this.doseData)
-            .enter()
-            .append('text')
-            .attr('x', d => d.x)
-            .attr('y', d => this.canvasHeight - 31)
-            .attr('text-anchor', 'middle')
-            .attr('fill', 'white')
-            .style("font-size", "20px")
-            .text(d => moment(d.estimatedDeliveryTime).format('hh:mm A'))
-            .append('tspan')
-            .attr('x', d => d.x)
-            .attr('y', d => this.canvasHeight - 15)
-            .style("font-size", "14px")
-            .text((d, i) => 'DOSE ' + (i + 1) + ' ARRIVAL');
-
-        //now pointer
-        let nowRect = this.svg
-            .append('svg:path')
-            .attr('transform', d => 'translate(' + (nowX + this.pointerBoxWidth / 2) + ',' + this.pointerBoxHeight + ') rotate(180)')
-            .attr('fill', '#464646')
-            .attr('d', this.upPointerSVG);
-
-        //label on the now pointer
-        let nowTextBox = this.svg
-            .append('text')
-            .attr('x', nowX)
-            .attr('y', 45)
-            .attr('text-anchor', 'middle')
-            .attr('fill', 'white')
-            .style("font-size", "20px")
-            .text(d => moment().format('hh:mm A'))
-            .append('tspan')
-            .attr('x', nowX)
-            .attr('y', 27)
-            .style("font-size", "14px")
-            .text((d, i) => 'CURRENT TIME');
-
-        //the white dose circle
+        //the white milestone circles
         var nestedDose = this.svg.selectAll('nestedDose')
             .data(this.doseData)
             .enter()
@@ -424,11 +349,115 @@ export class AppComponent implements AfterViewInit {
                 .append('circle')
                 .attr('cx', d => this.timeCoordinates.getX(d.time))
                 .attr('cy', dose.y)
-                .attr('r', 8)
+                .attr('r', 10)
                 .attr('fill', 'white')
                 .style('stroke', dose.arcColor)
                 .append('title').text(d => d.description);
         });
+
+        //the white dose circle
+        let circle = this.svg.selectAll('doseCircle')
+            .data(this.doseData)
+            .enter()
+            .append('circle')
+            .attr('cx', d => d.x)
+            .attr('cy', d => d.y)
+            .attr('r', scaledRadius)
+            .attr('fill', 'white');
+
+        //the label on the dose circle
+        let arcText = this.svg.selectAll('arcText')
+            .data(this.doseData)
+            .enter()
+            .append('text')
+            .attr('x', d => d.x)
+            .attr('y', d => d.y + 2)
+            .attr('text-anchor', 'middle')
+            .attr('fill', d => d.arcColor)
+            .style('font-size', AppComponent.timeFontSize(this.timeCoordinates.getWidth(this.pointerBoxWidthMinutes)))
+            .style('font-weight', 'bold')
+            .style('visibility', d => (scaledRadius >= 20) ? 'visible' : 'hidden')
+            .text(d => this.timeCoordinates.minutesLabel(d.minutesAway))
+            .append('tspan')
+            .attr('x', d => d.x)
+            .attr('y', d => d.y + 19)
+            .style('font-size', '12px')
+            .text(d => { if (d.minutesAway < 0) { return ''; } else { return 'AWAY'; } })
+            .style('visibility', d => (scaledRadius >= 40) ? 'visible' : 'hidden');
+
+        //data for arc for dose circle
+        let arcdata = D3.arc()
+            .startAngle(0)
+            .endAngle((d: any) => this.timeCoordinates.minutesAwayToRadius(d.minutesAway))
+            .innerRadius(scaledRadius * 0.92)
+            .outerRadius(scaledRadius * 1.08)
+            .cornerRadius(20);
+
+        //the time arc surrounding a dose circle
+        let arc = this.svg.selectAll('arcProgress')
+            .data(this.doseData)
+            .enter()
+            .append('svg:path')
+            .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')')
+            .attr('fill', d => d.arcColor)
+            .attr('d', arcdata);
+
+        let pointerBoxWidth: number = this.timeCoordinates.getWidth(this.pointerBoxWidthMinutes);
+        let pointerBoxHeight = 70;
+        if (pointerBoxWidth < 120) pointerBoxHeight = 40;
+
+        //arrival time pointer
+        let arrivalPointer = this.svg.selectAll('arrivalPointer')
+            .data(this.doseData)
+            .enter()
+            .append('svg:path')
+            .attr('transform', d => 'translate(' + (d.x - (pointerBoxWidth / 2)) + ',' + (this.canvasHeight - pointerBoxHeight) + ')')
+            .attr('fill', d => d.color)
+            .attr('d', AppComponent.upPointerPath(pointerBoxWidth, pointerBoxHeight));
+
+        //the label on the arrival time pointer
+        let arrivalTextBox = this.svg.selectAll('arrivalText')
+            .data(this.doseData)
+            .enter()
+            .append('text')
+            .attr('x', d => d.x)
+            .attr('y', d => this.canvasHeight - pointerBoxHeight + 35)
+            .attr('text-anchor', 'middle')
+            .attr('fill', 'white')
+            .style('font-size', AppComponent.timeFontSize(pointerBoxWidth))
+            .style('visibility', d => (pointerBoxWidth > 60) ? 'visible' : 'hidden')
+            .text(d => moment(d.estimatedDeliveryTime).format('hh:mm A'))
+            .append('tspan')
+            .attr('x', d => d.x)
+            .attr('y', d => this.canvasHeight - pointerBoxHeight + 55)
+            .style("font-size", "14px")
+            .style('visibility', d => (pointerBoxWidth > 120) ? 'visible' : 'hidden')
+            .text((d, i) => 'DOSE ' + (i + 1) + ' ARRIVAL');
+
+        //now pointer
+        let nowRect = this.svg
+            .append('svg:path')
+            .attr('transform', d => 'translate(' + (nowX + (pointerBoxWidth / 2)) + ',' + pointerBoxHeight + ') rotate(180)')
+            .attr('fill', '#464646')
+            .attr('d', AppComponent.upPointerPath(pointerBoxWidth, pointerBoxHeight));
+
+        //label on the now pointer
+        let nowTextBox = this.svg
+            .append('text')
+            .attr('x', nowX)
+            .attr('y', pointerBoxHeight - 22)
+            .attr('text-anchor', 'middle')
+            .attr('fill', 'white')
+            .style('font-size', AppComponent.timeFontSize(pointerBoxWidth))
+            .style('visibility', d => (pointerBoxWidth > 60) ? 'visible' : 'hidden')
+            .text(d => moment().format('hh:mm A'))
+            .append('tspan')
+            .attr('x', nowX)
+            .attr('y', pointerBoxHeight - 45)
+            .style("font-size", "14px")
+            .style('visibility', d => (pointerBoxWidth > 120) ? 'visible' : 'hidden')
+            .text((d, i) => 'CURRENT TIME');
+
     }
     private drawPatientSVG(): void {
 
@@ -451,6 +480,7 @@ export class AppComponent implements AfterViewInit {
             .append('text')
             .attr('x', d => this.timeCoordinates.getX(d.startTime))
             .attr('y', d => this.appointmentConfig.y - 5)
+            .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 120) ? 'visible' : 'hidden')
             .attr('fill', 'black')
             .style("font-size", "14px")
             .style("font-weight", "bold")
@@ -463,15 +493,15 @@ export class AppComponent implements AfterViewInit {
             .append('svg:path')
             .attr('transform', d => 'translate(' + this.timeCoordinates.getX(d.startTime) + ',' + (this.appointmentConfig.y + (this.circleRadius * .25)) + ')')
             .attr('fill', this.appointmentConfig.color)
-            .attr('d', this.roundedRectTop);
+            .attr('d', d => AppComponent.roundedRectTopPath(this.timeCoordinates.getWidth(d.length), 40));
 
         let scanRectBottom = this.svg.selectAll('scanRectBottom')
             .data(this.scanData)
             .enter()
             .append('svg:path')
-            .attr('transform', d => 'translate(' + this.timeCoordinates.getX(d.startTime) + ',' + (this.appointmentConfig.y + (this.circleRadius * .25)) + ')')
+            .attr('transform', d => 'translate(' + this.timeCoordinates.getX(d.startTime) + ',' + (this.appointmentConfig.y + (this.circleRadius * .25) + 40) + ')')
             .attr('fill', 'white')
-            .attr('d', this.roundedRectBottom);
+            .attr('d', d => AppComponent.roundedRectBottomPath(this.timeCoordinates.getWidth(d.length), 20));
 
         let scanText = this.svg.selectAll('scanText')
             .data(this.scanData)
@@ -479,19 +509,92 @@ export class AppComponent implements AfterViewInit {
             .append('text')
             .attr('x', d => this.timeCoordinates.getX(d.startTime) + 5)
             .attr('y', d => (this.appointmentConfig.y + (this.circleRadius * .5) + 5))
+            .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 50) ? 'visible' : 'hidden')
             .attr('fill', 'black')
             .style("font-size", "12px")
             .text(d => d.name)
             .append('tspan')
             .attr('x', d => this.timeCoordinates.getX(d.startTime) + 5)
             .attr('y', d => (this.appointmentConfig.y + (this.circleRadius * 1.5) + 5))
+            .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 50) ? 'visible' : 'hidden')
             .text(d => d.type)
             .append('tspan')
             .attr('text-anchor', 'end')
-            .attr('x', d => this.timeCoordinates.getX(d.startTime) + this.timeCoordinates.getWidth(d.length))
+            .attr('x', d => this.timeCoordinates.getX(d.startTime) + this.timeCoordinates.getWidth(d.length) - 5)
             .attr('y', d => (this.appointmentConfig.y + (this.circleRadius * 1.5) + 5))
+            .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 120) ? 'visible' : 'hidden')
             .text(d => d.dose);
 
     }
+    private static roundedRectTopPath(width: number, height: number): Path {
+        let cornerRadius = 10;
+        if (width < 20) {
+            cornerRadius = width / 2;
+        }
+        let path = D3.path();
+        path.moveTo(0, height);
+        path.lineTo(0, cornerRadius);
+        path.quadraticCurveTo(0, 0, cornerRadius, 0)
+        path.lineTo(width - cornerRadius, 0);
+        path.quadraticCurveTo(width, 0, width, cornerRadius);
+        path.lineTo(width, height);
+        path.closePath();
+        return path;
+    }
 
+    private static roundedRectBottomPath(width: number, height: number): Path {
+        let cornerRadius = 10;
+        if (width < 20) {
+            cornerRadius = width / 2;
+        }
+        let path = D3.path();
+        path.moveTo(0, 0);
+        path.lineTo(0, height - cornerRadius);
+        path.quadraticCurveTo(0, height, cornerRadius, height)
+        path.lineTo(width - cornerRadius, height);
+        path.quadraticCurveTo(width, height, width, height - cornerRadius);
+        path.lineTo(width, 0);
+        path.closePath();
+        return path;
+    }
+
+
+    private static upPointerPath(width: number, height: number): Path {
+        let cornerRadius = 10;
+        if (width < 40) {
+            cornerRadius = width / 4;
+        }
+        let path = D3.path();
+        path.moveTo(0, height);
+        path.lineTo(0, cornerRadius * 3);
+        path.quadraticCurveTo(0, cornerRadius, cornerRadius * 2, cornerRadius);
+        path.lineTo((width / 2) - cornerRadius, cornerRadius);
+        path.lineTo((width / 2), 0);
+        path.lineTo((width / 2) + cornerRadius, cornerRadius);
+        path.lineTo(width - (cornerRadius * 2), cornerRadius);
+        path.quadraticCurveTo(width, cornerRadius, width, cornerRadius * 3);
+        path.lineTo(width, height);
+        path.closePath();
+        return path;
+    }
+
+    private static timeFontSize(pixelWidth): string {
+        if (pixelWidth > 120) {
+            return "20px";
+        } else if (pixelWidth > 90) {
+            return "16px";
+        } else {
+            return "12px";
+        }
+    }
+    private static getCircleRadius(pixelWidth): number {
+        if (pixelWidth > 120) {
+            return 40;
+        } else if (pixelWidth > 90) {
+            return 30;
+        } else if (pixelWidth > 60) {
+            return 20;
+        }
+        return 10;
+    }
 }

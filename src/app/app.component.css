@@ -10,3 +10,25 @@
   border-radius: 8px;           
   pointer-events: none;         
 }
+.bgcontainer { 
+  z-index: 2;
+  position: relative; 
+}
+
+.container { 
+  z-index: 1; 
+  position: absolute; 
+  top: 0px; 
+  left: 0px; 
+}
+
+.fabgroup {
+  position: fixed;
+  top: 20px;
+  right: 10px;
+}
+.material-icons { 
+  font-size: 24px; 
+}
+
+
