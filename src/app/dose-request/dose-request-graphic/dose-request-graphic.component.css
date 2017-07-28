@@ -1,0 +1,39 @@
+.tooltip {   
+  position: absolute;           
+  text-align: center;           
+  width: 60px;                  
+  height: 28px;                 
+  padding: 2px;             
+  font: 12px sans-serif;        
+  background: red;   
+  border: 0px;      
+  border-radius: 8px;           
+  pointer-events: none;         
+}
+.my-container {
+  background-color: #e1e1e1; 
+  height: 100%
+}
+.bgcontainer { 
+  z-index: 2;
+  position: relative; 
+}
+ 
+.graphic-container { 
+  z-index: 1; 
+  position: relative; 
+  top: 0px; 
+  left: 0px; 
+  height: 100%;
+}
+
+.fabgroup {
+  position: absolute;
+  top: 20px;
+  right: 10px;
+}
+.material-icons { 
+  font-size: 24px; 
+}
+
+

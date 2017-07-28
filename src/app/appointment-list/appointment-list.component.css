@@ -1,0 +1,38 @@
+#main {
+    background: rgba( 240, 240, 240, 0.9);
+    width: 320px;
+}
+.agenda-title {
+    height: 60px;
+    background: #1bdbae;
+    color: white;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+}
+.list-group-item {
+    margin: 10px;
+}
+.active-border {
+    border-style: solid;
+    border-color: #1bdbae;
+    border-width: 2px;
+}
+i:hover
+{
+    cursor: pointer; 
+}
+#doseButton {
+    background: #42cd64;
+}
+#transcriptList {
+    margin-top: 15px;
+}
+.btn {
+    margin-top: 15px;
+    color: white;
+    font-size: 12px;
+}
+ul {
+  list-style-type: none;
+}

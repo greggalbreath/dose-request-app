@@ -1,0 +1,42 @@
+<div id="main">
+  <div class="agenda-title vertical-align">
+    Agenda
+    <i class="material-icons" (click)="closeClicked()">close</i>
+  </div>
+
+  <ul class="list-group">
+    <li *ngFor="let item of allAppointmentData" class="list-group-item" [ngClass]="{'active-border': item.status=='Active'}"
+      (mouseenter)="onMouseChange(item, true)" (mouseleave)="onMouseChange(item, false)">
+
+      <div>
+        <div class="w-100">
+          <small class="row list-group-item-text">Patient:&nbsp;<b>{{item.name}}</b></small>
+        </div>
+        <div class="w-100">
+          <small class="row list-group-item-text">Status:&nbsp;<b>{{item.status}}</b></small>
+        </div>
+        <div class="w-100">
+          <small class="row list-group-item-text">Protocol:&nbsp;<b>{{item.protocol}}</b></small>
+        </div>
+        <div class="w-100">
+          <small class="row list-group-item-text">Status:&nbsp;<b>{{item.startTime | date:"shortTime"}}</b></small>
+        </div>
+        <div class="w-100" *ngIf="item.showRequestDose">
+          <button id="doseButton" type="button" class="btn" (click)="requestDose(item)">REQUEST DOSE</button>
+        </div>
+        <div class="w-100" *ngIf="item.showTranscriptButton">
+          <button type="button" class="btn btn-dark-grey" (click)="transcriptButtonClicked(item)">{{item.transcriptVisible ? 'CLOSE' : 'VIEW'}} TRANSCRIPT</button>
+        </div>
+        <div id="transcriptList" class="w-100" *ngIf="item.transcriptVisible && item.showTranscriptButton">
+          <ul class="list-group">
+            <li *ngFor="let transcriptItem of transcriptData">
+              <div class="w-100">
+                <small class="row list-group-item-text">{{transcriptItem.time | date:"hh:mm:ss a"}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{transcriptItem.message}}</small>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
