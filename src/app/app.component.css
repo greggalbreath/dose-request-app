@@ -26,7 +26,7 @@ button {
     height: 145px;
 }
 .my-body-content {
-      display: block;
+  display: block;
   position:absolute;
   height:auto;
   bottom:0;

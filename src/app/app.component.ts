@@ -18,7 +18,7 @@ export class AppComponent {
 
     public appointmentListVisible = false;
 
-    private toggleAppointmentList() {
+    public toggleAppointmentList() {
         this.appointmentListVisible = !this.appointmentListVisible;
     }
     public transcriptClicked(): void {
