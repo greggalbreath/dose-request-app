@@ -18,8 +18,8 @@ export class DataService {
     this.doseData[1].milestones[1].time = new Date((nowMinutes + 22) * 60000);
     this.doseData[1].milestones[2].time = new Date((nowMinutes + 24) * 60000);
     this.doseData[1].milestones[3].time = new Date((nowMinutes + 26) * 60000);
-    this.appointmentData[0].startTime = new Date((nowMinutes + 15) * 60000);
-    this.appointmentData[1].startTime = new Date((nowMinutes + 50) * 60000);
+    this.allAppointmentData[2].startTime = new Date((nowMinutes + 15) * 60000);
+    this.allAppointmentData[3].startTime = new Date((nowMinutes + 50) * 60000);
     this.scanData[0].startTime = new Date((nowMinutes + 17) * 60000);
     this.scanData[1].startTime = new Date((nowMinutes + 33) * 60000);
     this.scanData[2].startTime = new Date((nowMinutes + 52) * 60000);
@@ -63,25 +63,6 @@ export class DataService {
       ]
     }
   ];
-
-  public appointmentData: Array<any> = [
-    {
-      _id: '3456',
-      name: 'Natasha Romanoff',
-      startTime: new Date('2017/06/27 17:15'),
-      protocol: 'Exercise Stress',
-      status: 'Active',
-      length: 30
-    },
-    {
-      _id: '4567',
-      name: 'Oswald Cobblepot',
-      startTime: new Date('2017/06/27 18:00'),
-      protocol: 'High BMI',
-      status: 'Scheduled',
-      length: 30
-    }
-  ]
 
   public scanData: Array<any> = [
     {
@@ -148,7 +129,7 @@ export class DataService {
       name: 'Oswald Cobblepot',
       startTime: new Date('2017/06/27 14:00'),
       protocol: 'High BMI',
-      status: 'Scheduled',
+      status: 'Requested',
       length: 30
     },
     {
@@ -199,6 +180,12 @@ export class DataService {
       ];
     }
     return [];
+  }
+  public getActiveAppointment(): Array<any> {
+    return this.allAppointmentData.filter(this.isActiveAppointent);
+  }
+  private isActiveAppointent(item: any): boolean {
+    return (item.status === 'Active' || item.status === 'Requested');
   }
 }
 

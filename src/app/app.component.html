@@ -21,12 +21,12 @@
     <app-appointment-list (closed)="toggleAppointmentList()"></app-appointment-list>
 </div>
 <div class="my-body-content">
-    <app-dose-request-graphic></app-dose-request-graphic>
+    <app-dose-request-graphic (appointmentSelected)="appointmentSelected($event)"></app-dose-request-graphic>
 </div>
 <!-- end container -->
 <nav class="navbar fixed-bottom navbar-light bg-faded ">
     <div class="fixed-bottom">
-        <app-dose-request-patient-bar></app-dose-request-patient-bar>
+        <app-dose-request-patient-bar [data]="selectedAppointment"></app-dose-request-patient-bar>
         <div class="button-group">
             <i class="btn material-icons" (click)="toggleAppointmentList()">date_range</i>
             <i class="btn material-icons" (click)="chatClicked()">chat_bubble</i>

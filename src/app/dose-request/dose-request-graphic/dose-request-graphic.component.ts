@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
 import * as D3 from 'd3';
 import { Path, Selection } from 'd3';
 import { Observable } from 'rxjs/Observable';
@@ -22,6 +22,8 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
   }
 
   @ViewChild('container') element: ElementRef;
+  @Output() appointmentSelected = new EventEmitter();
+
   //private htmlElement: HTMLElement;
   private host;
   private svg;
@@ -38,6 +40,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
   private canvasWidthMinutes = this.originalWidthMinutes;
   private originalRelativeStartMinutes = -15;
   private relativeStartMinutes = this.originalRelativeStartMinutes;
+  private prevTransformK = 1.0;
 
   public doseData: Array<any>;
   public appointmentData: Array<any>;
@@ -75,7 +78,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
         this.drawDoseSVG()
       });
     this.dataService.updateDemoData();
-    this.appointmentData = this.dataService.appointmentData;
+    this.appointmentData = this.dataService.getActiveAppointment();
     this.doseData = this.dataService.doseData;
     this.scanData = this.dataService.scanData;
     this.setWindowSize();
@@ -114,12 +117,16 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
         this.canvasWidth,
         this.relativeStartMinutes - (this.canvasWidthMinutes * D3.event.transform.x / this.canvasWidth));
       this.drawDoseSVG();
-    } else if (D3.event.transform.k > 1) {
-      //zoomIn
-      this.executeZoom(0.1);
     } else {
-      //zoomOut
-      this.executeZoom(-0.1);
+      console.log(this.prevTransformK, D3.event.transform.k);
+      if (D3.event.transform.k > 1.0) {
+        //zoomIn
+        this.executeZoom(0.1);
+      } else {
+        //zoomOut
+        this.executeZoom(-0.1);
+      }
+      this.prevTransformK = D3.event.transform.k;
     }
   }
 
@@ -130,15 +137,18 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       this.timeCoordinates.rescale(this.canvasWidthMinutes,
         this.canvasWidth,
         this.relativeStartMinutes);
-      this.drawDoseSVG();
     }
   }
 
   public executeZoom(factor: number) {
-    this.canvasWidthMinutes = this.canvasWidthMinutes + (this.originalWidthMinutes * factor);
-    this.timeCoordinates.rescale(this.canvasWidthMinutes,
-      this.canvasWidth,
-      this.relativeStartMinutes);
+    let newWidth = this.canvasWidthMinutes + (this.originalWidthMinutes * factor);
+    console.log(newWidth);
+    if (newWidth > 10 && newWidth < 450) {
+      this.canvasWidthMinutes = newWidth;
+      this.timeCoordinates.rescale(this.canvasWidthMinutes,
+        this.canvasWidth,
+        this.relativeStartMinutes);
+    }
     this.drawDoseSVG();
   }
 
@@ -169,7 +179,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
     //create a group to hold the grid lines in the back
     this.svg.append("g").attr("id", "gridlines");
 
-    this.drawPatientSVG();
+    this.drawAppointmentSVG();
     //draw current time vertical line
     let vLineNow = this.svg.select("#gridlines")
       .append('svg:line')
@@ -367,9 +377,9 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .text((d, i) => 'CURRENT TIME');
 
   }
-  private drawPatientSVG(): void {
+  private drawAppointmentSVG(): void {
 
-    let rect = this.svg.selectAll('patientRect')
+    let rect = this.svg.selectAll('appointmentRect')
       .data(this.appointmentData)
       .enter()
       .append('rect')
@@ -433,6 +443,19 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 120) ? 'visible' : 'hidden')
       .text(d => d.dose);
 
+    //this is the clickable, invisiable component on top of the others
+    let clickRect = this.svg.selectAll('appointmentClickableRect')
+      .data(this.appointmentData)
+      .enter()
+      .append('rect')
+      .attr('x', d => this.timeCoordinates.getX(d.startTime))
+      .attr('y', this.appointmentConfig.y)
+      .attr("rx", 8)
+      .attr("ry", 8)
+      .attr('width', d => this.timeCoordinates.getWidth(d.length))
+      .attr('height', this.circleRadius * 2)
+      .on('click', (d) => this.appointmentClicked(d))
+      .attr("opacity", 0.0);
   }
   private static roundedRectTopPath(width: number, height: number): Path {
     let cornerRadius = 10;
@@ -505,6 +528,8 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
     }
     return 10;
   }
-
+  private appointmentClicked(appointmentData): void {
+    this.appointmentSelected.emit(appointmentData);
+  }
 
 }

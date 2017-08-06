@@ -17,6 +17,7 @@ import { TimeCoordinates } from './time-coordinates';
 export class AppComponent {
 
     public appointmentListVisible = false;
+    public selectedAppointment: any = {};
 
     public toggleAppointmentList() {
         this.appointmentListVisible = !this.appointmentListVisible;
@@ -38,6 +39,9 @@ export class AppComponent {
     }
     public menuButtonClicked(): void {
         alert('TODO - I don\'t know what this button is supposed to do.');
+    }
+    public appointmentSelected(event): void {
+        this.selectedAppointment = event;
     }
 
 }
