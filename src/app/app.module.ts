@@ -6,14 +6,14 @@ import 'hammerjs';
 import { AppComponent } from './app.component';
 import { DataService } from './shared/data.service';
 import { DoseRequestGraphicComponent } from './dose-request/dose-request-graphic/dose-request-graphic.component';
-import { DoseRequestPatientBarComponent } from './dose-request/dose-request-patient-bar/dose-request-patient-bar.component';
+import { DoseRequestAppointmentBarComponent } from './dose-request/dose-request-appointment-bar/dose-request-appointment-bar.component';
 import { AppointmentListComponent } from './appointment-list/appointment-list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DoseRequestGraphicComponent,
-    DoseRequestPatientBarComponent,
+    DoseRequestAppointmentBarComponent,
     AppointmentListComponent
   ],
   imports: [

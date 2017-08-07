@@ -26,14 +26,14 @@
 <!-- end container -->
 <nav class="navbar fixed-bottom navbar-light bg-faded ">
     <div class="fixed-bottom">
-        <app-dose-request-patient-bar [data]="selectedAppointment"></app-dose-request-patient-bar>
+        <app-dose-request-appointment-bar [data]="selectedAppointment"></app-dose-request-appointment-bar>
         <div class="button-group">
             <i class="btn material-icons" (click)="toggleAppointmentList()">date_range</i>
             <i class="btn material-icons" (click)="chatClicked()">chat_bubble</i>
             <i class="btn material-icons" (click)="transcriptClicked()">list</i>
-            <button type="button" class="btn btn-warning" (click)="delayClicked()">DELAY</button>
-            <button type="button" class="btn btn-danger" (click)="stopClicked()">STOP</button>
-            <button type="button" class="btn btn-dark-grey" (click)="cancelClicked()">CANCEL</button>
+            <button type="button" class="btn btn-warning" [disabled]="!selectedAppointment._id" (click)="delayClicked()">DELAY</button>
+            <button type="button" class="btn btn-danger" [disabled]="!selectedAppointment._id" (click)="stopClicked()">STOP</button>
+            <button type="button" class="btn btn-dark-grey" [disabled]="!selectedAppointment._id" (click)="cancelClicked()">CANCEL</button>
         </div>
     </div>
 </nav>

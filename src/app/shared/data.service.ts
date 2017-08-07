@@ -66,7 +66,7 @@ export class DataService {
 
   public scanData: Array<any> = [
     {
-      _patientid: '12345',
+      _appointmentId: '3456',
       name: 'SCAN 1',
       type: 'Rest',
       dose: '10 mCi',
@@ -74,7 +74,7 @@ export class DataService {
       length: 8
     },
     {
-      _patientid: '12345',
+      _appointmentId: '3456',
       name: 'SCAN 2',
       type: 'Stress',
       dose: '20 mCi',
@@ -82,7 +82,7 @@ export class DataService {
       length: 7
     },
     {
-      _patientid: '34567',
+      _appointmentId: '4567',
       name: 'SCAN 1',
       type: 'Rest',
       dose: '10 mCi',
@@ -90,10 +90,10 @@ export class DataService {
       length: 10
     },
     {
-      _patientid: '34567',
+      _appointmentId: '4567',
       name: 'SCAN 2',
       type: 'Stress',
-      dose: '20 mCi',
+      dose: '25 mCi',
       startTime: new Date('2017/06/27 18:35'),
       length: 6
     }
@@ -182,11 +182,13 @@ export class DataService {
     return [];
   }
   public getActiveAppointment(): Array<any> {
-    return this.allAppointmentData.filter(this.isActiveAppointent);
+    return this.allAppointmentData.filter(item => (item.status === 'Active' || item.status === 'Requested'));
   }
-  private isActiveAppointent(item: any): boolean {
-    return (item.status === 'Active' || item.status === 'Requested');
+
+  public getScansForAppointment(appointmentData:any):any {
+    return this.scanData.filter(item => item._appointmentId === appointmentData._id);
   }
+
 }
 
 

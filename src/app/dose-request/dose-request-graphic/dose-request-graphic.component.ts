@@ -45,6 +45,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
   public doseData: Array<any>;
   public appointmentData: Array<any>;
   public scanData: Array<any>;
+  private selectedAppointment: any = {};
 
   private configData: Array<any> = [{
     arcColor: '#00afff',
@@ -118,7 +119,6 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
         this.relativeStartMinutes - (this.canvasWidthMinutes * D3.event.transform.x / this.canvasWidth));
       this.drawDoseSVG();
     } else {
-      console.log(this.prevTransformK, D3.event.transform.k);
       if (D3.event.transform.k > 1.0) {
         //zoomIn
         this.executeZoom(0.1);
@@ -142,7 +142,6 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
 
   public executeZoom(factor: number) {
     let newWidth = this.canvasWidthMinutes + (this.originalWidthMinutes * factor);
-    console.log(newWidth);
     if (newWidth > 10 && newWidth < 450) {
       this.canvasWidthMinutes = newWidth;
       this.timeCoordinates.rescale(this.canvasWidthMinutes,
@@ -174,6 +173,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .style('font-family', 'Roboto')
       .call(D3.zoom().on('zoom', () => this.zoomed())
         .on('end', () => this.zoomEnd()))
+      .on('dblclick.zoom', null)  //disable double clip zoom
       .append('g');
 
     //create a group to hold the grid lines in the back
@@ -390,7 +390,24 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .attr('width', d => this.timeCoordinates.getWidth(d.length))
       .attr('height', this.circleRadius * 2)
       .style('fill', this.appointmentConfig.color)
-      .attr("opacity", 0.2);
+      .style('stroke', this.appointmentConfig.color)
+      .style('stroke-width', '2px')
+      .attr('opacity', 0.2);
+
+    let rectBorder = this.svg.selectAll('appointmentRect')
+      .data(this.appointmentData)
+      .enter()
+      .append('rect')
+      .attr('x', d => this.timeCoordinates.getX(d.startTime))
+      .attr('y', this.appointmentConfig.y)
+      .attr("rx", 8)
+      .attr("ry", 8)
+      .attr('width', d => this.timeCoordinates.getWidth(d.length))
+      .attr('height', this.circleRadius * 2)
+      .style('stroke', d => (d._id === this.selectedAppointment._id) ? this.appointmentConfig.color : 'none')
+      .style('stroke-width', '2px')
+      .style('fill', 'none')
+      .attr('opacity', 1.0);
 
     let nameText = this.svg.selectAll('nameText')
       .data(this.appointmentData)
@@ -529,7 +546,12 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
     return 10;
   }
   private appointmentClicked(appointmentData): void {
-    this.appointmentSelected.emit(appointmentData);
+    if (appointmentData._id !== this.selectedAppointment._id) {
+      this.selectedAppointment = appointmentData;
+      this.selectedAppointment.scans = this.dataService.getScansForAppointment(this.selectedAppointment);
+      this.appointmentSelected.emit(appointmentData);
+      this.drawDoseSVG();
+    }
   }
 
 }
