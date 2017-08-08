@@ -111,7 +111,10 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
   }
 
   private zoomed() {
-    if (D3.event.transform.k === 1) {
+    if (D3.event.transform.k === 1 && D3.event.transform.x === 0 ) {
+      //this is just a click event, so ignore
+      return;
+    } else if (D3.event.transform.k === 1) {
       //pan
       //only temporarily update the relativeStartMinutes, the final zoomEnd is when the relative start minutes are updated.
       this.timeCoordinates.rescale(this.canvasWidthMinutes,
@@ -177,11 +180,11 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .append('g');
 
     //create a group to hold the grid lines in the back
-    this.svg.append("g").attr("id", "gridlines");
+    this.svg.append('g').attr('id', 'gridlines');
 
     this.drawAppointmentSVG();
     //draw current time vertical line
-    let vLineNow = this.svg.select("#gridlines")
+    let vLineNow = this.svg.select('#gridlines')
       .append('svg:line')
       .attr('x1', nowX)
       .attr('y1', '0%')
@@ -191,31 +194,31 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .attr('stroke-width', 2);
 
     //create gradient for dose box
-    let gradient = this.svg.append("defs").selectAll("linearGradient")
+    let gradient = this.svg.append('defs').selectAll('linearGradient')
       .data(this.doseData)
       .enter()
-      .append("linearGradient")
-      .attr("id", (d, i) => "linear" + i)
-      .attr("x1", "0%")
-      .attr("y1", "50%")
-      .attr("x2", "100%")
-      .attr("y2", "50%")
-      .attr("spreadMethod", "pad");
+      .append('linearGradient')
+      .attr('id', (d, i) => 'linear' + i)
+      .attr('x1', '0%')
+      .attr('y1', '50%')
+      .attr('x2', '100%')
+      .attr('y2', '50%')
+      .attr('spreadMethod', 'pad');
 
-    gradient.append("svg:stop")
-      .attr("offset", "0%")
-      .attr("stop-color", d => d.color)
-      .attr("stop-opacity", 0.4);
+    gradient.append('svg:stop')
+      .attr('offset', '0%')
+      .attr('stop-color', d => d.color)
+      .attr('stop-opacity', 0.4);
 
-    gradient.append("svg:stop")
-      .attr("offset", "50%")
-      .attr("stop-color", d => d.color)
-      .attr("stop-opacity", 0.6);
+    gradient.append('svg:stop')
+      .attr('offset', '50%')
+      .attr('stop-color', d => d.color)
+      .attr('stop-opacity', 0.6);
 
-    gradient.append("svg:stop")
-      .attr("offset", "100%")
-      .attr("stop-color", d => d.color)
-      .attr("stop-opacity", 0.4);
+    gradient.append('svg:stop')
+      .attr('offset', '100%')
+      .attr('stop-color', d => d.color)
+      .attr('stop-opacity', 0.4);
 
 
     let scaledRadius = DoseRequestGraphicComponent.getCircleRadius(this.timeCoordinates.getWidth(this.pointerBoxWidthMinutes));
@@ -231,7 +234,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .style('fill', (d, i) => 'url(#linear' + i + ')');
 
     //vertical line at dose
-    let vLine = this.svg.select("#gridlines").selectAll('vline')
+    let vLine = this.svg.select('#gridlines').selectAll('vline')
       .data(this.doseData)
       .enter()
       .append('svg:line')
@@ -243,7 +246,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .attr('stroke-dasharray', '2,3');
 
     //horizontal milestone line for a dose
-    let hLine = this.svg.select("#gridlines").selectAll('hline')
+    let hLine = this.svg.select('#gridlines').selectAll('hline')
       .data(this.doseData)
       .enter()
       .append('svg:line')
@@ -348,7 +351,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .append('tspan')
       .attr('x', d => d.x)
       .attr('y', d => this.canvasHeight - pointerBoxHeight + 55)
-      .style("font-size", "14px")
+      .style('font-size', '14px')
       .style('visibility', d => (pointerBoxWidth > 120) ? 'visible' : 'hidden')
       .text((d, i) => 'DOSE ' + (i + 1) + ' ARRIVAL');
 
@@ -372,7 +375,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .append('tspan')
       .attr('x', nowX)
       .attr('y', pointerBoxHeight - 45)
-      .style("font-size", "14px")
+      .style('font-size', '14px')
       .style('visibility', d => (pointerBoxWidth > 120) ? 'visible' : 'hidden')
       .text((d, i) => 'CURRENT TIME');
 
@@ -385,8 +388,8 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .append('rect')
       .attr('x', d => this.timeCoordinates.getX(d.startTime))
       .attr('y', this.appointmentConfig.y)
-      .attr("rx", 8)
-      .attr("ry", 8)
+      .attr('rx', 8)
+      .attr('ry', 8)
       .attr('width', d => this.timeCoordinates.getWidth(d.length))
       .attr('height', this.circleRadius * 2)
       .style('fill', this.appointmentConfig.color)
@@ -400,8 +403,8 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .append('rect')
       .attr('x', d => this.timeCoordinates.getX(d.startTime))
       .attr('y', this.appointmentConfig.y)
-      .attr("rx", 8)
-      .attr("ry", 8)
+      .attr('rx', 8)
+      .attr('ry', 8)
       .attr('width', d => this.timeCoordinates.getWidth(d.length))
       .attr('height', this.circleRadius * 2)
       .style('stroke', d => (d._id === this.selectedAppointment._id) ? this.appointmentConfig.color : 'none')
@@ -417,8 +420,8 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .attr('y', d => this.appointmentConfig.y - 5)
       .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 120) ? 'visible' : 'hidden')
       .attr('fill', 'black')
-      .style("font-size", "14px")
-      .style("font-weight", "bold")
+      .style('font-size', '14px')
+      .style('font-weight', 'bold')
       //.attr('text-anchor', 'middle')
       .text(d => d.name);
 
@@ -446,7 +449,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .attr('y', d => (this.appointmentConfig.y + (this.circleRadius * .5) + 5))
       .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 50) ? 'visible' : 'hidden')
       .attr('fill', 'black')
-      .style("font-size", "12px")
+      .style('font-size', '12px')
       .text(d => d.name)
       .append('tspan')
       .attr('x', d => this.timeCoordinates.getX(d.startTime) + 5)
@@ -467,12 +470,12 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .append('rect')
       .attr('x', d => this.timeCoordinates.getX(d.startTime))
       .attr('y', this.appointmentConfig.y)
-      .attr("rx", 8)
-      .attr("ry", 8)
+      .attr('rx', 8)
+      .attr('ry', 8)
       .attr('width', d => this.timeCoordinates.getWidth(d.length))
       .attr('height', this.circleRadius * 2)
       .on('click', (d) => this.appointmentClicked(d))
-      .attr("opacity", 0.0);
+      .attr('opacity', 0.0);
   }
   private static roundedRectTopPath(width: number, height: number): Path {
     let cornerRadius = 10;
@@ -528,11 +531,11 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
 
   private static timeFontSize(pixelWidth): string {
     if (pixelWidth > 120) {
-      return "20px";
+      return '20px';
     } else if (pixelWidth > 90) {
-      return "16px";
+      return '16px';
     } else {
-      return "12px";
+      return '12px';
     }
   }
   private static getCircleRadius(pixelWidth): number {
