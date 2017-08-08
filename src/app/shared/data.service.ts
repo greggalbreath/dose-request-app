@@ -1,30 +1,36 @@
 import { Injectable } from '@angular/core';
-
+import { Observable, Subject } from 'rxjs/Rx';
 @Injectable()
 export class DataService {
+
+  private readonly MS_TO_MIN = 60000;
+
+  public activeAppointmentData: Subject<Array<any>> = new Subject();
+
   constructor() {
+    //DEMO only to hard code time in the future
+    var nowMinutes = (new Date()).getTime() / this.MS_TO_MIN;
+    this.doseData[0].estimatedDeliveryTime = new Date((nowMinutes + 12) * this.MS_TO_MIN);
+    this.doseData[0].milestones[0].time = new Date((nowMinutes - 8) * this.MS_TO_MIN);
+    this.doseData[0].milestones[1].time = new Date((nowMinutes - 2) * this.MS_TO_MIN);
+    this.doseData[0].milestones[2].time = new Date((nowMinutes + 4) * this.MS_TO_MIN);
+    this.doseData[0].milestones[3].time = new Date((nowMinutes + 8) * this.MS_TO_MIN);
+    this.doseData[1].estimatedDeliveryTime = new Date((nowMinutes + 30) * this.MS_TO_MIN);
+    this.doseData[1].milestones[0].time = new Date((nowMinutes + 20) * this.MS_TO_MIN);
+    this.doseData[1].milestones[1].time = new Date((nowMinutes + 22) * this.MS_TO_MIN);
+    this.doseData[1].milestones[2].time = new Date((nowMinutes + 24) * this.MS_TO_MIN);
+    this.doseData[1].milestones[3].time = new Date((nowMinutes + 26) * this.MS_TO_MIN);
+    this.allAppointmentData[2].startTime = new Date((nowMinutes + 15) * this.MS_TO_MIN);
+    this.allAppointmentData[3].startTime = new Date((nowMinutes + 50) * this.MS_TO_MIN);
+    this.allAppointmentData[2].scans[0].startTime = new Date((nowMinutes + 17) * this.MS_TO_MIN);
+    this.allAppointmentData[2].scans[1].startTime = new Date((nowMinutes + 33) * this.MS_TO_MIN);
+    this.allAppointmentData[3].scans[0].startTime = new Date((nowMinutes + 52) * this.MS_TO_MIN);
+    this.allAppointmentData[3].scans[1].startTime = new Date((nowMinutes + 67) * this.MS_TO_MIN);
+  }
+  public queryData():void {
+    this.activeAppointmentData.next(this.getActiveAppointments());
   }
 
-  public updateDemoData() {
-    //DEMO only to hard code time in the future
-    var nowMinutes = (new Date()).getTime() / 60000;
-    this.doseData[0].estimatedDeliveryTime = new Date((nowMinutes + 12) * 60000);
-    this.doseData[0].milestones[0].time = new Date((nowMinutes - 8) * 60000);
-    this.doseData[0].milestones[1].time = new Date((nowMinutes - 2) * 60000);
-    this.doseData[0].milestones[2].time = new Date((nowMinutes + 4) * 60000);
-    this.doseData[0].milestones[3].time = new Date((nowMinutes + 8) * 60000);
-    this.doseData[1].estimatedDeliveryTime = new Date((nowMinutes + 30) * 60000);
-    this.doseData[1].milestones[0].time = new Date((nowMinutes + 20) * 60000);
-    this.doseData[1].milestones[1].time = new Date((nowMinutes + 22) * 60000);
-    this.doseData[1].milestones[2].time = new Date((nowMinutes + 24) * 60000);
-    this.doseData[1].milestones[3].time = new Date((nowMinutes + 26) * 60000);
-    this.allAppointmentData[2].startTime = new Date((nowMinutes + 15) * 60000);
-    this.allAppointmentData[3].startTime = new Date((nowMinutes + 50) * 60000);
-    this.scanData[0].startTime = new Date((nowMinutes + 17) * 60000);
-    this.scanData[1].startTime = new Date((nowMinutes + 33) * 60000);
-    this.scanData[2].startTime = new Date((nowMinutes + 52) * 60000);
-    this.scanData[3].startTime = new Date((nowMinutes + 67) * 60000);
-  }
   public doseData: Array<any> = [
     {
       estimatedDeliveryTime: new Date('2017/06/27 17:18'),
@@ -64,40 +70,6 @@ export class DataService {
     }
   ];
 
-  public scanData: Array<any> = [
-    {
-      _appointmentId: '3456',
-      name: 'SCAN 1',
-      type: 'Rest',
-      dose: '10 mCi',
-      startTime: new Date('2017/06/27 17:20'),
-      length: 8
-    },
-    {
-      _appointmentId: '3456',
-      name: 'SCAN 2',
-      type: 'Stress',
-      dose: '20 mCi',
-      startTime: new Date('2017/06/27 17:35'),
-      length: 7
-    },
-    {
-      _appointmentId: '4567',
-      name: 'SCAN 1',
-      type: 'Rest',
-      dose: '10 mCi',
-      startTime: new Date('2017/06/27 18:20'),
-      length: 10
-    },
-    {
-      _appointmentId: '4567',
-      name: 'SCAN 2',
-      type: 'Stress',
-      dose: '25 mCi',
-      startTime: new Date('2017/06/27 18:35'),
-      length: 6
-    }
-  ]
 
   public allAppointmentData: Array<any> = [
     {
@@ -122,7 +94,21 @@ export class DataService {
       startTime: new Date('2017/06/27 13:15'),
       protocol: 'Exercise Stress',
       status: 'Active',
-      length: 30
+      length: 30,
+      scans: [{
+        name: 'SCAN 1',
+        type: 'Rest',
+        dose: '10 mCi',
+        startTime: new Date('2017/06/27 17:20'),
+        length: 8
+      },
+      {
+        name: 'SCAN 2',
+        type: 'Stress',
+        dose: '20 mCi',
+        startTime: new Date('2017/06/27 17:35'),
+        length: 7
+      }]
     },
     {
       _id: '4567',
@@ -130,7 +116,21 @@ export class DataService {
       startTime: new Date('2017/06/27 14:00'),
       protocol: 'High BMI',
       status: 'Requested',
-      length: 30
+      length: 30,
+      scans: [{
+        name: 'SCAN 1',
+        type: 'Rest',
+        dose: '10 mCi',
+        startTime: new Date('2017/06/27 18:20'),
+        length: 10
+      },
+      {
+        name: 'SCAN 2',
+        type: 'Stress',
+        dose: '25 mCi',
+        startTime: new Date('2017/06/27 18:35'),
+        length: 6
+      }]
     },
     {
       _id: '5678',
@@ -181,14 +181,35 @@ export class DataService {
     }
     return [];
   }
-  public getActiveAppointment(): Array<any> {
+
+  public getActiveAppointments():Array<any> {
     return this.allAppointmentData.filter(item => (item.status === 'Active' || item.status === 'Requested'));
   }
 
-  public getScansForAppointment(appointmentData:any):any {
-    return this.scanData.filter(item => item._appointmentId === appointmentData._id);
+  public getActiveScans(): Array<any> {
+    let appointments: Array<any> = this.allAppointmentData.filter(item => (item.status === 'Active' || item.status === 'Requested'));
+    let scans: Array<any> = [];
+    if (appointments) {
+      for (let i = 0; i < appointments.length; i++) {
+        if (appointments[i].scans) {
+          for (var j = 0; j < appointments[i].scans.length; j++) {
+            scans.push(appointments[i].scans[j]);
+          }
+        }
+      }
+    }
+    return scans;
   }
 
+  public delaySelectedAppointment(selectedAppt: any): void {
+    if (selectedAppt.scans) {
+      let nextScan = selectedAppt.scans.find(item => (!item.status || item.status === 'Active'));
+      if( nextScan ) {
+        nextScan.startTime = new Date(nextScan.startTime.getTime() + (5 * this.MS_TO_MIN));
+      }
+    }
+    this.activeAppointmentData.next(this.getActiveAppointments());
+  }
 }
 
 

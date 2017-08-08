@@ -8,6 +8,7 @@ import 'rxjs/add/operator/take'
 import * as moment from 'moment';
 
 import { TimeCoordinates } from './time-coordinates';
+import { DataService } from './shared/data.service';
 
 @Component({
     selector: 'app-root',
@@ -15,6 +16,7 @@ import { TimeCoordinates } from './time-coordinates';
     styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+    constructor(private dataService: DataService) { }
 
     public appointmentListVisible = false;
     public selectedAppointment: any = {};
@@ -29,7 +31,7 @@ export class AppComponent {
         alert('TODO - show chat window');
     }
     public delayClicked(): void {
-        alert('TODO - DELAY DOSE');
+        this.dataService.delaySelectedAppointment(this.selectedAppointment);
     }
     public stopClicked(): void {
         alert('TODO - STOP DOSE');
