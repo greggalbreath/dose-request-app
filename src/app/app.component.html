@@ -1,39 +1,42 @@
-<nav class="navbar fixed-top navbar-toggleable-md navbar-light bg-faded">
-    <div class="navbar-brand"><img src="/assets/Ionetix-Logo-RGB.png" width="120px" alt=""></div>
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                    style="color: #f0f0f0">
-          Dose Request
-        </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                    <a class="dropdown-item" href="#">Action</a>
-                    <a class="dropdown-item" href="#">Another action</a>
-                    <a class="dropdown-item" href="#">Something else here</a>
-                </div>
-            </li>
-        </ul>
-    </div>
-    <i class="btn material-icons" (click)="menuButtonClicked()">more_vert</i>
-</nav>
-<div class="right-nav-list" [hidden]="!appointmentListVisible">
-    <app-appointment-list (closed)="toggleAppointmentList()"></app-appointment-list>
-</div>
-<div class="my-body-content">
-    <app-dose-request-graphic (appointmentSelected)="appointmentSelected($event)"></app-dose-request-graphic>
-</div>
-<!-- end container -->
-<nav class="navbar fixed-bottom navbar-light bg-faded ">
-    <div class="fixed-bottom">
-        <app-dose-request-appointment-bar [data]="selectedAppointment"></app-dose-request-appointment-bar>
-        <div class="button-group">
-            <i class="btn material-icons" (click)="toggleAppointmentList()">date_range</i>
-            <i class="btn material-icons" (click)="chatClicked()">chat_bubble</i>
-            <i class="btn material-icons" (click)="transcriptClicked()">list</i>
-            <button type="button" class="btn btn-warning" [disabled]="!selectedAppointment._id" (click)="delayClicked()">DELAY</button>
-            <button type="button" class="btn btn-danger" [disabled]="!selectedAppointment._id" (click)="stopClicked()">STOP</button>
-            <button type="button" class="btn btn-dark-grey" [disabled]="!selectedAppointment._id" (click)="cancelClicked()">CANCEL</button>
+<md-sidenav-container class="h-100">
+    <nav class="navbar fixed-top navbar-toggleable-md navbar-light bg-faded">
+        <div class="navbar-brand"><img src="/assets/Ionetix-Logo-RGB.png" width="120px" alt=""></div>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <button class="btn-flat text-white" md-button [mdMenuTriggerFor]="navbarMenu">Menu</button>
+                    <md-menu #navbarMenu="mdMenu">
+                        <button md-menu-item>Item 1</button>
+                        <button md-menu-item>Item 2</button>
+                        <button md-menu-item>Item 3</button>
+                        <button md-menu-item>Item 4</button>
+                    </md-menu>
+                </li>
+            </ul>
         </div>
+        <i class="btn material-icons" (click)="menuButtonClicked()">more_vert</i>
+    </nav>
+
+        <md-sidenav align="end" #appointmentSidenav>
+            <app-appointment-list (closed)="appointmentSidenav.close()"></app-appointment-list>
+        </md-sidenav>
+
+
+    <div class="my-body-content">
+        <app-dose-request-graphic></app-dose-request-graphic>
     </div>
-</nav>
+    <!-- end container -->
+    <nav class="navbar fixed-bottom navbar-light bg-faded">
+        <div class="fixed-bottom">
+            <app-dose-request-patient-bar></app-dose-request-patient-bar>
+            <div class="button-group">
+                <i class="btn material-icons" (click)="appointmentSidenav.open()">date_range</i>
+                <i class="btn material-icons" (click)="chatClicked()">chat_bubble</i>
+                <i class="btn material-icons" (click)="transcriptClicked()">list</i>
+                <button type="button" class="btn btn-warning" (click)="delayClicked()">DELAY</button>
+                <button type="button" class="btn btn-danger" (click)="stopClicked()">STOP</button>
+                <button type="button" class="btn btn-dark-grey" (click)="cancelClicked()">CANCEL</button>
+            </div>
+        </div>
+    </nav>
+</md-sidenav-container>

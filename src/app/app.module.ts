@@ -1,23 +1,26 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import 'hammerjs';
-//import { MdToolbarModule } from '@angular/material';
+import { BrowserAnimationsModule }  from '@angular/platform-browser/animations'
+import { MaterialModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
 import { DataService } from './shared/data.service';
 import { DoseRequestGraphicComponent } from './dose-request/dose-request-graphic/dose-request-graphic.component';
-import { DoseRequestAppointmentBarComponent } from './dose-request/dose-request-appointment-bar/dose-request-appointment-bar.component';
+import { DoseRequestPatientBarComponent } from './dose-request/dose-request-patient-bar/dose-request-patient-bar.component';
 import { AppointmentListComponent } from './appointment-list/appointment-list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DoseRequestGraphicComponent,
-    DoseRequestAppointmentBarComponent,
+    DoseRequestPatientBarComponent,
     AppointmentListComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    BrowserAnimationsModule,
+    MaterialModule
   ],
   providers: [DataService],
   bootstrap: [AppComponent]
