@@ -1,14 +1,13 @@
 import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
-import * as D3 from 'd3';
-import { Path, Selection } from 'd3';
-import { Observable } from 'rxjs/Observable';
+import * as D3                                             from 'd3';
+import { Path, Selection }                                 from 'd3';
+import { Observable }                                      from 'rxjs/Observable';
 import 'rxjs/add/observable/timer'
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/take'
 import * as moment from 'moment';
 
 import { TimeCoordinates } from './time-coordinates';
-import { DataService } from './shared/data.service';
 
 @Component({
     selector: 'app-root',
@@ -16,14 +15,7 @@ import { DataService } from './shared/data.service';
     styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-    constructor(private dataService: DataService) { }
 
-    public appointmentListVisible = false;
-    public selectedAppointment: any = {};
-
-    public toggleAppointmentList() {
-        this.appointmentListVisible = !this.appointmentListVisible;
-    }
     public transcriptClicked(): void {
         alert('TODO - show entire transcript');
     }
@@ -31,7 +23,7 @@ export class AppComponent {
         alert('TODO - show chat window');
     }
     public delayClicked(): void {
-        this.dataService.delaySelectedAppointment(this.selectedAppointment);
+        alert('TODO - DELAY DOSE');
     }
     public stopClicked(): void {
         alert('TODO - STOP DOSE');
@@ -41,9 +33,6 @@ export class AppComponent {
     }
     public menuButtonClicked(): void {
         alert('TODO - I don\'t know what this button is supposed to do.');
-    }
-    public appointmentSelected(event): void {
-        this.selectedAppointment = event;
     }
 
 }

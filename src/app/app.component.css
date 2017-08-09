@@ -1,8 +1,8 @@
 * {
     --color: white;
 }
-.material-icons { 
-  font-size: 24px; 
+.material-icons {
+  font-size: 24px;
 }
 .btn {
     margin: 20px;
@@ -35,23 +35,13 @@ button {
   right:0;
   margin: 60px 0px 145px 0px;
 }
-.right-nav-list {
-  display: block;
-  position:absolute;
-  height:auto;
-  bottom:0;
-  top:0;
-  left:100;
-  right:0;
-  margin: 0px;
-  z-index: 2000;
-}
+
 @media (max-width: 979px) {
   .body-content {
     padding-top: 0px;
   }
 }
 .btn:hover {
-    cursor: pointer; 
+    cursor: pointer;
 }
 
