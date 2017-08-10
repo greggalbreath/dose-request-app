@@ -1,7 +1,7 @@
-<div id="main">
-  <div class="agenda-title vertical-align">
+<div id="main" class="material-card">
+  <div class="agenda-title vertical-align d-flex justify-content-between">
     Agenda
-    <i class="material-icons" (click)="closeClicked()">close</i>
+    <i class="material-icons mr-2" (click)="closeClicked()">close</i>
   </div>
 
   <ul class="list-group">
@@ -21,13 +21,13 @@
         <div class="w-100">
           <small class="row list-group-item-text">Status:&nbsp;<b>{{item.startTime | date:"shortTime"}}</b></small>
         </div>
-        <div class="w-100" *ngIf="item.showRequestDose">
-          <button id="doseButton" type="button" class="btn" (click)="requestDose(item)">REQUEST DOSE</button>
+        <div class="w-100" *ngIf="(item.status == 'Scheduled')" [@fadeInOut]="item.showStatus">
+          <button id="doseButton" type="button" class="btn action-btn" (click)="requestDose(item)">REQUEST DOSE</button>
         </div>
-        <div class="w-100" *ngIf="item.showTranscriptButton">
-          <button type="button" class="btn btn-dark-grey" (click)="transcriptButtonClicked(item)">{{item.transcriptVisible ? 'CLOSE' : 'VIEW'}} TRANSCRIPT</button>
+        <div class="w-100" *ngIf="(item.status == 'Complete')" [@fadeInOut]="item.showStatus">
+          <button type="button" class="btn action-btn btn-dark-grey" (click)="transcriptButtonClicked(item)">{{item.transcriptVisible ? 'CLOSE' : 'VIEW'}} TRANSCRIPT</button>
         </div>
-        <div id="transcriptList" class="w-100" *ngIf="item.transcriptVisible">
+        <div id="transcriptList" class="w-100" *ngIf="item.transcriptVisible" [@fadeInOut]="item.transcriptVisible">
           <ul class="list-group">
             <li *ngFor="let transcriptItem of transcriptData">
               <div class="w-100">

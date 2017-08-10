@@ -1,11 +1,14 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 import { DataService } from '../shared/data.service';
+
+import { fadeInOut } from '../shared/animations/animations';
 
 @Component({
   selector: 'app-appointment-list',
   templateUrl: './appointment-list.component.html',
-  styleUrls: ['./appointment-list.component.css']
+  styleUrls: ['./appointment-list.component.css'],
+  animations: [fadeInOut]
 })
 export class AppointmentListComponent implements OnInit {
 
@@ -13,10 +16,16 @@ export class AppointmentListComponent implements OnInit {
 
   public allAppointmentData: Array<any>
   public transcriptData: Array<any>
+  @Input('status') listStatus: string;
   @Output() closed = new EventEmitter();
 
   ngOnInit() {
-    this.allAppointmentData = this.dataService.allAppointmentData;
+    this.allAppointmentData = this.dataService.allAppointmentData
+      .map(item => {
+        item.showStatus = 'inactive';
+        return item
+      });
+
   }
   public closeClicked() {
     this.closed.emit();
@@ -31,6 +40,12 @@ export class AppointmentListComponent implements OnInit {
       item.showTranscriptButton = enter;
     } else {
       item.showTranscriptButton = false;
+    }
+
+    if (enter) {
+      item.showStatus = 'active';
+    } else {
+      item.showStatus = 'inactive';
     }
   }
   public requestDose(item: any): void {

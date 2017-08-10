@@ -1,9 +1,17 @@
 #main {
-    background: rgba( 240, 240, 240, 0.9);
+    display: block;
+    height: 100%;
     width: 320px;
+    padding: 60px 10px 10px 10px;
+    background: rgba( 240, 240, 240, 0.9);
+    overflow-y: scroll;
 }
 .agenda-title {
+    position: absolute;
+    top: 0;
+    right: 0;
     height: 60px;
+    width: 320px;
     background: #1bdbae;
     color: white;
     padding-left: 10px;
@@ -11,16 +19,16 @@
     align-items: center;
 }
 .list-group-item {
-    margin: 10px;
+    margin: 10px 0;
+    overflow: hidden;
 }
 .active-border {
     border-style: solid;
     border-color: #1bdbae;
     border-width: 2px;
 }
-i:hover
-{
-    cursor: pointer; 
+i:hover {
+    cursor: pointer;
 }
 #doseButton {
     background: #42cd64;
@@ -35,4 +43,12 @@ i:hover
 }
 ul {
   list-style-type: none;
+}
+.action-btn:hover {
+    cursor: pointer;
+    -webkit-box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
+    -webkit-transition: all 0.2s ease-in-out;
+    -o-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
 }

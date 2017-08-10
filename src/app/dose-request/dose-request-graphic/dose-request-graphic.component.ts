@@ -22,7 +22,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
   }
 
   @ViewChild('container') element: ElementRef;
-  @Output() appointmentSelected = new EventEmitter();
+  @Output() scanSelected = new EventEmitter();
 
   //private htmlElement: HTMLElement;
   private host;
@@ -45,8 +45,11 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
   public doseData: Array<any>;
   public appointmentData: Array<any>;
   public scanData: Array<any>;
-  private selectedAppointment: any = {};
-  private inited:boolean = false;
+  private selectedScan: any = {};
+  private inited: boolean = false;
+
+  private static readonly COLOR_DARK_GRAY = '#464646';
+
   private configData: Array<any> = [{
     arcColor: '#00afff',
     color: '#3176af',
@@ -76,7 +79,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
     //redraw every 15 seconds
     let countDown = Observable.timer(15 * 1000, 15 * 1000)
       .subscribe(() => this.drawSVG());
-    
+
 
     this.dataService.activeAppointmentData
       .subscribe((data: any) => {
@@ -180,7 +183,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
     let doseWidth = 200;
     let nowX: number = this.timeCoordinates.getX(new Date());
 
-    if( !this.inited ) {
+    if (!this.inited) {
       return;
     }
 
@@ -377,7 +380,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
     let nowRect = this.svg
       .append('svg:path')
       .attr('transform', d => 'translate(' + (nowX + (pointerBoxWidth / 2)) + ',' + pointerBoxHeight + ') rotate(180)')
-      .attr('fill', '#464646')
+      .attr('fill', DoseRequestGraphicComponent.COLOR_DARK_GRAY)
       .attr('d', DoseRequestGraphicComponent.upPointerPath(pointerBoxWidth, pointerBoxHeight));
 
     //label on the now pointer
@@ -419,20 +422,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .style('stroke-width', '2px')
       .attr('opacity', 0.2);
 
-    let rectBorder = this.svg.selectAll('appointmentRect')
-      .data(this.appointmentData)
-      .enter()
-      .append('rect')
-      .attr('x', d => this.timeCoordinates.getX(d.startTime))
-      .attr('y', this.appointmentConfig.y)
-      .attr('rx', 8)
-      .attr('ry', 8)
-      .attr('width', d => this.timeCoordinates.getWidth(d.length))
-      .attr('height', this.circleRadius * 2)
-      .style('stroke', d => (d._id === this.selectedAppointment._id) ? this.appointmentConfig.color : 'none')
-      .style('stroke-width', '2px')
-      .style('fill', 'none')
-      .attr('opacity', 1.0);
+
 
     let nameText = this.svg.selectAll('nameText')
       .data(this.appointmentData)
@@ -486,18 +476,33 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
         .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 120) ? 'visible' : 'hidden')
         .text(d => d.dose);
     }
-    //this is the clickable, invisiable component on top of the others
-    let clickRect = this.svg.selectAll('appointmentClickableRect')
-      .data(this.appointmentData)
+    let rectBorder = this.svg.selectAll('scanRect')
+      .data(this.scanData)
       .enter()
       .append('rect')
       .attr('x', d => this.timeCoordinates.getX(d.startTime))
-      .attr('y', this.appointmentConfig.y)
+      .attr('y', (this.appointmentConfig.y + (this.circleRadius * .25)))
       .attr('rx', 8)
       .attr('ry', 8)
       .attr('width', d => this.timeCoordinates.getWidth(d.length))
-      .attr('height', this.circleRadius * 2)
-      .on('click', (d) => this.appointmentClicked(d))
+      .attr('height', 60)
+      .style('stroke', d => (d._id === this.selectedScan._id) ? DoseRequestGraphicComponent.COLOR_DARK_GRAY : 'none')
+      .style('stroke-width', '1px')
+      .style('fill', 'none')
+      .attr('opacity', 1.0);
+
+    //this is the clickable, invisiable component on top of the others
+    let clickRect = this.svg.selectAll('scanClickableRect')
+      .data(this.scanData)
+      .enter()
+      .append('rect')
+      .attr('x', d => this.timeCoordinates.getX(d.startTime))
+      .attr('y', (this.appointmentConfig.y + (this.circleRadius * .25)))
+      .attr('rx', 8)
+      .attr('ry', 8)
+      .attr('width', d => this.timeCoordinates.getWidth(d.length))
+      .attr('height', 60)
+      .on('click', (d) => this.scanClicked(d))
       .attr('opacity', 0.0);
   }
 
@@ -572,10 +577,10 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
     }
     return 10;
   }
-  private appointmentClicked(appointmentData): void {
-    if (appointmentData._id !== this.selectedAppointment._id) {
-      this.selectedAppointment = appointmentData;
-      this.appointmentSelected.emit(appointmentData);
+  private scanClicked(scanData): void {
+    if (scanData._id !== this.selectedScan._id) {
+      this.selectedScan = scanData;
+      this.scanSelected.emit(scanData);
       this.drawSVG();
     }
   }

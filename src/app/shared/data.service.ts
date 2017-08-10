@@ -27,7 +27,7 @@ export class DataService {
     this.allAppointmentData[3].scans[0].startTime = new Date((nowMinutes + 52) * this.MS_TO_MIN);
     this.allAppointmentData[3].scans[1].startTime = new Date((nowMinutes + 67) * this.MS_TO_MIN);
   }
-  public queryData():void {
+  public queryData(): void {
     this.activeAppointmentData.next(this.getActiveAppointments());
   }
 
@@ -96,6 +96,7 @@ export class DataService {
       status: 'Active',
       length: 30,
       scans: [{
+        _id: '3456-1',
         name: 'SCAN 1',
         type: 'Rest',
         dose: '10 mCi',
@@ -103,6 +104,7 @@ export class DataService {
         length: 8
       },
       {
+        _id: '3456-2',
         name: 'SCAN 2',
         type: 'Stress',
         dose: '20 mCi',
@@ -118,6 +120,7 @@ export class DataService {
       status: 'Requested',
       length: 30,
       scans: [{
+        _id: '4567-1',
         name: 'SCAN 1',
         type: 'Rest',
         dose: '10 mCi',
@@ -125,6 +128,7 @@ export class DataService {
         length: 10
       },
       {
+        _id: '4567-2',
         name: 'SCAN 2',
         type: 'Stress',
         dose: '25 mCi',
@@ -182,7 +186,7 @@ export class DataService {
     return [];
   }
 
-  public getActiveAppointments():Array<any> {
+  public getActiveAppointments(): Array<any> {
     return this.allAppointmentData.filter(item => (item.status === 'Active' || item.status === 'Requested'));
   }
 
@@ -201,14 +205,31 @@ export class DataService {
     return scans;
   }
 
-  public delaySelectedAppointment(selectedAppt: any): void {
+  public delaySelectedScan(selectedAppt: any): void {
+    //TODO
     if (selectedAppt.scans) {
       let nextScan = selectedAppt.scans.find(item => (!item.status || item.status === 'Active'));
-      if( nextScan ) {
+      if (nextScan) {
         nextScan.startTime = new Date(nextScan.startTime.getTime() + (5 * this.MS_TO_MIN));
       }
     }
     this.activeAppointmentData.next(this.getActiveAppointments());
+  }
+  public getAppointmentFromScan(scanId: string): any {
+    let appointments: Array<any> = this.allAppointmentData;
+    let returnAppt: any = {};
+    if (appointments) {
+      for (let i = 0; i < appointments.length && !returnAppt._id; i++) {
+        if (appointments[i].scans) {
+          for (var j = 0; j < appointments[i].scans.length && !returnAppt._id; j++) {
+            if (appointments[i].scans[j]._id === scanId) {
+              returnAppt = appointments[i];
+            }
+          }
+        }
+      }
+    }
+    return returnAppt;
   }
 }
 

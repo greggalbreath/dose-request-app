@@ -18,12 +18,8 @@ import { DataService } from './shared/data.service';
 export class AppComponent {
     constructor(private dataService: DataService) { }
 
-    public appointmentListVisible = false;
-    public selectedAppointment: any = {};
+    public selectedScan: any = {};
 
-    public toggleAppointmentList() {
-        this.appointmentListVisible = !this.appointmentListVisible;
-    }
     public transcriptClicked(): void {
         alert('TODO - show entire transcript');
     }
@@ -31,10 +27,10 @@ export class AppComponent {
         alert('TODO - show chat window');
     }
     public delayClicked(): void {
-        this.dataService.delaySelectedAppointment(this.selectedAppointment);
+        this.dataService.delaySelectedScan(this.selectedScan);
     }
-    public stopClicked(): void {
-        alert('TODO - STOP DOSE');
+    public redoClicked(): void {
+        alert('TODO - REDO DOSE');
     }
     public cancelClicked(): void {
         alert('TODO - CANCEL DOSE');
@@ -42,8 +38,9 @@ export class AppComponent {
     public menuButtonClicked(): void {
         alert('TODO - I don\'t know what this button is supposed to do.');
     }
-    public appointmentSelected(event): void {
-        this.selectedAppointment = event;
+    public scanSelected(event): void {
+        console.log(event);
+        this.selectedScan = this.dataService.getAppointmentFromScan(event._id);
     }
 
 }

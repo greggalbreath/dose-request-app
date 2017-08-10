@@ -1,7 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import 'hammerjs';
-//import { MdToolbarModule } from '@angular/material';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
+import { MaterialModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
 import { DataService } from './shared/data.service';
@@ -17,7 +18,9 @@ import { AppointmentListComponent } from './appointment-list/appointment-list.co
     AppointmentListComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    BrowserAnimationsModule,
+    MaterialModule
   ],
   providers: [DataService],
   bootstrap: [AppComponent]
