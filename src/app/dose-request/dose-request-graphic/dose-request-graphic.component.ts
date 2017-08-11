@@ -9,6 +9,7 @@ import * as moment from 'moment';
 
 import { TimeCoordinates } from '../../time-coordinates';
 import { DataService } from '../../shared/data.service';
+import { MacaqueService } from '../../shared/macaque.service';
 
 @Component({
   selector: 'app-dose-request-graphic',
@@ -18,7 +19,7 @@ import { DataService } from '../../shared/data.service';
 
 export class DoseRequestGraphicComponent implements AfterViewInit {
 
-  constructor(private dataService: DataService) {
+  constructor(private dataService: DataService, private macaqueService: MacaqueService) {
   }
 
   @ViewChild('container') element: ElementRef;
@@ -84,12 +85,15 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
     this.dataService.activeAppointmentData
       .subscribe((data: any) => {
         this.appointmentData = data;
-        this.doseData = this.dataService.doseData;
         this.scanData = this.dataService.getActiveScans();
         this.updateDoseDataArray();
         this.drawSVG();
       });
-
+    this.macaqueService.displayedDoses //TODO probably throttle this
+      .subscribe((data: any) => {
+        this.doseData = data;
+        this.drawSVG();
+      });
     this.dataService.queryData();
     this.setWindowSize();
   }
@@ -115,14 +119,34 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       //limit the dose array to the length of the config
       this.doseData.splice(this.configData.length);
     }
+    console.log(this.doseData);
+
     //update the doseData with config info for colors, etc
     this.doseData.forEach((element, i) => {
-      element.x = this.timeCoordinates.getX(element.estimatedDeliveryTime)
-      element.minutesAway = (element.estimatedDeliveryTime.getTime() - (new Date()).getTime()) / 1000 / 60;
+      element.x = this.timeCoordinates.getX(element.schedule.delivery)
+      element.minutesAway = (element.schedule.delivery.getTime() - (new Date()).getTime()) / 1000 / 60;
       //copy the config data for convenience
       element.color = this.configData[i].color;
       element.arcColor = this.configData[i].arcColor;
       element.y = this.configData[i].y;
+      //these are the milestone white dots
+      element.milestones = new Array<any>();
+      element.milestones.push({
+        description: 'beam on',
+        time: element.schedule.beamOn
+      });
+      element.milestones.push({
+        description: 'beam off',
+        time: element.schedule.beamOff
+      });
+      element.milestones.push({
+        description: 'synthesis',
+        time: element.schedule.synthesis
+      });
+      element.milestones.push({
+        description: 'dispatch',
+        time: element.schedule.dispatch
+      });
     });
   }
 
@@ -254,7 +278,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
         .append('rect')
         .attr('x', d => d.x)
         .attr('y', d => d.y - this.circleRadius)
-        .attr('width', d => this.timeCoordinates.getWidth(d.doseWindowMinutes))
+        .attr('width', d => this.timeCoordinates.getX(d.schedule.expiration) - this.timeCoordinates.getX(d.schedule.delivery))
         .attr('height', this.circleRadius * 2)
         .style('fill', (d, i) => 'url(#linear' + i + ')');
 
@@ -275,31 +299,12 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
         .data(this.doseData)
         .enter()
         .append('svg:line')
-        .attr('x1', d => this.timeCoordinates.getX(d.milestones[0].time))
+        .attr('x1', d => this.timeCoordinates.getX(d.schedule.beamOn))
         .attr('y1', d => d.y)
-        .attr('x2', d => d.x + this.timeCoordinates.getWidth(d.doseWindowMinutes))
+        .attr('x2', d => this.timeCoordinates.getX(d.schedule.expiration))
         .attr('y2', d => d.y)
         .attr('stroke-width', 2)
         .attr('stroke', d => d.color);
-
-      //the white milestone circles
-      var nestedDose = this.svg.selectAll('nestedDose')
-        .data(this.doseData)
-        .enter()
-        .append('g');
-
-      nestedDose.each((dose, i) => {
-        let milestoneCircle = this.svg.selectAll('milestoneCircle')
-          .data(dose.milestones)
-          .enter()
-          .append('circle')
-          .attr('cx', d => this.timeCoordinates.getX(d.time))
-          .attr('cy', dose.y)
-          .attr('r', 10)
-          .attr('fill', 'white')
-          .style('stroke', dose.arcColor)
-          .append('title').text(d => d.description);
-      });
 
       //the white dose circle
       let circle = this.svg.selectAll('doseCircle')
@@ -348,6 +353,25 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
         .attr('fill', d => d.arcColor)
         .attr('d', arcdata);
 
+      //the white milestone circles
+      var nestedDose = this.svg.selectAll('nestedDose')
+        .data(this.doseData)
+        .enter()
+        .append('g');
+
+      nestedDose.each((dose, i) => {
+        let milestoneCircle = this.svg.selectAll('milestoneCircle')
+          .data(dose.milestones)
+          .enter()
+          .append('circle')
+          .attr('cx', d => this.timeCoordinates.getX(d.time))
+          .attr('cy', dose.y)
+          .attr('r', 10)
+          .attr('fill', 'white')
+          .style('stroke', dose.arcColor)
+          .append('title').text(d => d.description);
+      });
+
       //arrival time pointer
       let arrivalPointer = this.svg.selectAll('arrivalPointer')
         .data(this.doseData)
@@ -368,7 +392,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
         .attr('fill', 'white')
         .style('font-size', DoseRequestGraphicComponent.timeFontSize(pointerBoxWidth))
         .style('visibility', d => (pointerBoxWidth > 60) ? 'visible' : 'hidden')
-        .text(d => moment(d.estimatedDeliveryTime).format('hh:mm A'))
+        .text(d => moment(d.schedule.delivery).format('hh:mm A'))
         .append('tspan')
         .attr('x', d => d.x)
         .attr('y', d => this.canvasHeight - pointerBoxHeight + 55)
@@ -473,8 +497,8 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
         .attr('text-anchor', 'end')
         .attr('x', d => this.timeCoordinates.getX(d.startTime) + this.timeCoordinates.getWidth(d.length) - 5)
         .attr('y', d => (this.appointmentConfig.y + (this.circleRadius * 1.5) + 5))
-        .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 120) ? 'visible' : 'hidden')
-        .text(d => d.dose);
+        .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 100) ? 'visible' : 'hidden')
+        .text(d => d.activity + ' mCi');
     }
     let rectBorder = this.svg.selectAll('scanRect')
       .data(this.scanData)

@@ -2,8 +2,8 @@
   <p *ngIf="data.name">
     Patient:&nbsp;&nbsp;<b>{{data.name}}</b>&nbsp;&nbsp;&raquo;&nbsp;&nbsp;Status:&nbsp;&nbsp;<b>{{data.status}}</b>&nbsp;&nbsp;&raquo;&nbsp;&nbsp;Protocol:&nbsp;&nbsp;
     <b>{{data.protocol}}</b>&nbsp;&nbsp;&raquo;
-    <span *ngIf="data.scans && data.scans.length>0">&nbsp;&nbsp;{{data.scans[0].type}}&nbsp;:&nbsp;{{data.scans[0].dose}}</span>
-    <span *ngIf="data.scans && data.scans.length>1">,&nbsp;&nbsp;{{data.scans[1].type}}&nbsp;:&nbsp;{{data.scans[1].dose}}</span>
+    <span *ngIf="data.scans && data.scans.length>0">&nbsp;&nbsp;{{data.scans[0].type}}&nbsp;:&nbsp;{{data.scans[0].activity}}</span>
+    <span *ngIf="data.scans && data.scans.length>1">,&nbsp;&nbsp;{{data.scans[1].type}}&nbsp;:&nbsp;{{data.scans[1].activity}}</span>
 
 
   </p>

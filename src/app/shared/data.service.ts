@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs/Rx';
+
+import { Utility } from './utility';
+
 @Injectable()
 export class DataService {
 
@@ -10,67 +13,60 @@ export class DataService {
   constructor() {
     //DEMO only to hard code time in the future
     var nowMinutes = (new Date()).getTime() / this.MS_TO_MIN;
-    this.doseData[0].estimatedDeliveryTime = new Date((nowMinutes + 12) * this.MS_TO_MIN);
-    this.doseData[0].milestones[0].time = new Date((nowMinutes - 8) * this.MS_TO_MIN);
-    this.doseData[0].milestones[1].time = new Date((nowMinutes - 2) * this.MS_TO_MIN);
-    this.doseData[0].milestones[2].time = new Date((nowMinutes + 4) * this.MS_TO_MIN);
-    this.doseData[0].milestones[3].time = new Date((nowMinutes + 8) * this.MS_TO_MIN);
-    this.doseData[1].estimatedDeliveryTime = new Date((nowMinutes + 30) * this.MS_TO_MIN);
-    this.doseData[1].milestones[0].time = new Date((nowMinutes + 20) * this.MS_TO_MIN);
-    this.doseData[1].milestones[1].time = new Date((nowMinutes + 22) * this.MS_TO_MIN);
-    this.doseData[1].milestones[2].time = new Date((nowMinutes + 24) * this.MS_TO_MIN);
-    this.doseData[1].milestones[3].time = new Date((nowMinutes + 26) * this.MS_TO_MIN);
-    this.allAppointmentData[2].startTime = new Date((nowMinutes + 15) * this.MS_TO_MIN);
+    // this.doseData[0].estimatedDeliveryTime = new Date((nowMinutes + 12) * this.MS_TO_MIN);
+    // this.doseData[0].milestones[0].time = new Date((nowMinutes - 8) * this.MS_TO_MIN);
+    // this.doseData[0].milestones[1].time = new Date((nowMinutes - 2) * this.MS_TO_MIN);
+    // this.doseData[0].milestones[2].time = new Date((nowMinutes + 4) * this.MS_TO_MIN);
+    // this.doseData[0].milestones[3].time = new Date((nowMinutes + 8) * this.MS_TO_MIN);
+    // this.doseData[1].estimatedDeliveryTime = new Date((nowMinutes + 30) * this.MS_TO_MIN);
+    // this.doseData[1].milestones[0].time = new Date((nowMinutes + 20) * this.MS_TO_MIN);
+    // this.doseData[1].milestones[1].time = new Date((nowMinutes + 22) * this.MS_TO_MIN);
+    // this.doseData[1].milestones[2].time = new Date((nowMinutes + 24) * this.MS_TO_MIN);
+    // this.doseData[1].milestones[3].time = new Date((nowMinutes + 26) * this.MS_TO_MIN);
+    this.allAppointmentData[2].startTime = new Date((nowMinutes + 20) * this.MS_TO_MIN);
     this.allAppointmentData[3].startTime = new Date((nowMinutes + 50) * this.MS_TO_MIN);
-    this.allAppointmentData[2].scans[0].startTime = new Date((nowMinutes + 17) * this.MS_TO_MIN);
+    this.allAppointmentData[2].scans[0].startTime = new Date((nowMinutes + 22) * this.MS_TO_MIN);
     this.allAppointmentData[2].scans[1].startTime = new Date((nowMinutes + 33) * this.MS_TO_MIN);
     this.allAppointmentData[3].scans[0].startTime = new Date((nowMinutes + 52) * this.MS_TO_MIN);
     this.allAppointmentData[3].scans[1].startTime = new Date((nowMinutes + 67) * this.MS_TO_MIN);
   }
   public queryData(): void {
     this.activeAppointmentData.next(this.getActiveAppointments());
+    //todo query vervet for current doses
+    //this.displayedDoses.next(?);
+
   }
 
-  public doseData: Array<any> = [
-    {
-      estimatedDeliveryTime: new Date('2017/06/27 17:18'),
-      doseWindowMinutes: 7,
-      milestones: [{
-        description: 'beam on',
-        time: new Date('2017/06/27 17:32')
-      }, {
-        description: 'beam off',
-        time: new Date('2017/06/27 17:35')
-      }, {
-        description: 'synthesis complete',
-        time: new Date('2017/06/27 17:40')
-      }, {
-        description: 'QC complete',
-        time: new Date('2017/06/27 17:45')
-      }
-      ]
-    },
-    {
-      estimatedDeliveryTime: new Date('2017/06/27 17:32'),
-      doseWindowMinutes: 7,
-      milestones: [{
-        description: 'beam on',
-        time: new Date('2017/06/27 17:32')
-      }, {
-        description: 'beam off',
-        time: new Date('2017/06/27 17:35')
-      }, {
-        description: 'synthesis complete',
-        time: new Date('2017/06/27 17:40')
-      }, {
-        description: 'QC complete',
-        time: new Date('2017/06/27 17:45')
-      }
-      ]
-    }
-  ];
+  //TODO get this from vervet
 
-
+  // [
+  //   {
+  //     name: "update",
+  //     _dose: "3456-1",
+  //     code: 210,
+  //     schedule: {
+  //       beamOn: "2017-08-11T03:19:40.489Z",
+  //       beamOff: "2017-08-11T03:26:50.489Z",
+  //       synthesis: "2017-08-11T03:31:20.489Z",
+  //       dispatch: "2017-08-11T03:35:20.489Z",
+  //       delivery: "2017-08-11T03:38:20.489Z",
+  //       expiration: "2017-08-11T03:42:20.489Z"
+  //     }
+  //   },
+  //   {
+  //     name: "update",
+  //     _dose: "3456-2",
+  //     code: 210,
+  //     schedule: {
+  //       beamOn: "2017-08-11T03:49:40.489Z",
+  //       beamOff: "2017-08-11T03:56:50.489Z",
+  //       synthesis: "2017-08-11T04:01:20.489Z",
+  //       dispatch: "2017-08-11T04:05:20.489Z",
+  //       delivery: "2017-08-11T04:08:20.489Z",
+  //       expiration: "2017-08-11T04:12:20.489Z"
+  //     }
+  //   }
+  // ];
   public allAppointmentData: Array<any> = [
     {
       _id: '1234',
@@ -93,13 +89,13 @@ export class DataService {
       name: 'Natasha Romanoff',
       startTime: new Date('2017/06/27 13:15'),
       protocol: 'Exercise Stress',
-      status: 'Active',
+      status: 'Scheduled',
       length: 30,
       scans: [{
         _id: '3456-1',
         name: 'SCAN 1',
         type: 'Rest',
-        dose: '10 mCi',
+        activity: 10,
         startTime: new Date('2017/06/27 17:20'),
         length: 8
       },
@@ -107,7 +103,7 @@ export class DataService {
         _id: '3456-2',
         name: 'SCAN 2',
         type: 'Stress',
-        dose: '20 mCi',
+        activity: 20,
         startTime: new Date('2017/06/27 17:35'),
         length: 7
       }]
@@ -117,13 +113,13 @@ export class DataService {
       name: 'Oswald Cobblepot',
       startTime: new Date('2017/06/27 14:00'),
       protocol: 'High BMI',
-      status: 'Requested',
+      status: 'Scheduled',
       length: 30,
       scans: [{
         _id: '4567-1',
         name: 'SCAN 1',
         type: 'Rest',
-        dose: '10 mCi',
+        activity: 10,
         startTime: new Date('2017/06/27 18:20'),
         length: 10
       },
@@ -131,7 +127,7 @@ export class DataService {
         _id: '4567-2',
         name: 'SCAN 2',
         type: 'Stress',
-        dose: '25 mCi',
+        activity: 25,
         startTime: new Date('2017/06/27 18:35'),
         length: 6
       }]
@@ -231,6 +227,14 @@ export class DataService {
     }
     return returnAppt;
   }
+  public updateStatus(apptId: string, newStatus: string): any {
+    let apptData = this.allAppointmentData.find(item => (item._id === apptId));
+    if (apptData.status !== newStatus) {
+      apptData.status = newStatus;
+      this.activeAppointmentData.next(this.getActiveAppointments());
+    }
+  }
+
 }
 
 

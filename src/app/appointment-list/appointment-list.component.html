@@ -1,7 +1,7 @@
 <div id="main" class="material-card">
   <div class="agenda-title vertical-align d-flex justify-content-between">
     Agenda
-    <i class="material-icons mr-2" (click)="closeClicked()">close</i>
+    <i class="material-icons mr-2" (click)="closeList()">close</i>
   </div>
 
   <ul class="list-group">
@@ -22,7 +22,7 @@
           <small class="row list-group-item-text">Status:&nbsp;<b>{{item.startTime | date:"shortTime"}}</b></small>
         </div>
         <div class="w-100" *ngIf="(item.status == 'Scheduled')" [@fadeInOut]="item.showStatus">
-          <button id="doseButton" type="button" class="btn action-btn" (click)="requestDose(item)">REQUEST DOSE</button>
+          <button id="doseButton" type="button" class="btn action-btn" (click)="requestDose(item)">REQUEST DOSES</button>
         </div>
         <div class="w-100" *ngIf="(item.status == 'Complete')" [@fadeInOut]="item.showStatus">
           <button type="button" class="btn action-btn btn-dark-grey" (click)="transcriptButtonClicked(item)">{{item.transcriptVisible ? 'CLOSE' : 'VIEW'}} TRANSCRIPT</button>

@@ -39,7 +39,6 @@ export class AppComponent {
         alert('TODO - I don\'t know what this button is supposed to do.');
     }
     public scanSelected(event): void {
-        console.log(event);
         this.selectedScan = this.dataService.getAppointmentFromScan(event._id);
     }
 

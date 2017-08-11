@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 import { DataService } from '../shared/data.service';
+import { MacaqueService } from '../shared/macaque.service';
 
 import { fadeInOut } from '../shared/animations/animations';
 
@@ -12,7 +13,7 @@ import { fadeInOut } from '../shared/animations/animations';
 })
 export class AppointmentListComponent implements OnInit {
 
-  constructor(private dataService: DataService) { }
+  constructor(private dataService: DataService, private macaqueService: MacaqueService) { }
 
   public allAppointmentData: Array<any>
   public transcriptData: Array<any>
@@ -27,7 +28,7 @@ export class AppointmentListComponent implements OnInit {
       });
 
   }
-  public closeClicked() {
+  public closeList() {
     this.closed.emit();
   }
   public onMouseChange(item: any, enter: boolean) {
@@ -49,7 +50,9 @@ export class AppointmentListComponent implements OnInit {
     }
   }
   public requestDose(item: any): void {
-    alert('TODO - Request Dose for ' + item.name);
+    this.macaqueService.requestDoses(item);
+    this.dataService.updateStatus(item._id, 'Requested');
+    this.closeList();
   }
   public transcriptButtonClicked(clickedItem: any): void {
     clickedItem.transcriptVisible = !clickedItem.transcriptVisible;
