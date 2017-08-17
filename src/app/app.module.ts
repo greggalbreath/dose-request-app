@@ -6,7 +6,7 @@ import { MaterialModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
 import { DataService } from './shared/data.service';
-import { MacaqueService } from './shared/macaque.service';
+import { DoseDataService } from './shared/dose-data.service';
 import { DoseRequestGraphicComponent } from './dose-request/dose-request-graphic/dose-request-graphic.component';
 import { DoseRequestAppointmentBarComponent } from './dose-request/dose-request-appointment-bar/dose-request-appointment-bar.component';
 import { AppointmentListComponent } from './appointment-list/appointment-list.component';
@@ -25,7 +25,7 @@ import { AppointmentListComponent } from './appointment-list/appointment-list.co
   ],
   providers: [
     DataService,
-    MacaqueService
+    DoseDataService
   ],
   bootstrap: [AppComponent]
 })

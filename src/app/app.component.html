@@ -26,13 +26,14 @@
     <!-- end container -->
     <nav class="navbar fixed-bottom navbar-light bg-faded ">
         <div class="fixed-bottom">
-            <app-dose-request-appointment-bar [data]="selectedScan"></app-dose-request-appointment-bar>
+            <app-dose-request-appointment-bar [data]="selectedAppt"></app-dose-request-appointment-bar>
             <div class="button-group">
                 <i class="btn material-icons" (click)="appointmentSidenav.open()">date_range</i>
                 <i class="btn material-icons" (click)="chatClicked()">chat_bubble</i>
                 <i class="btn material-icons" (click)="transcriptClicked()">list</i>
-                <button type="button" class="btn btn-warning" [disabled]="!selectedScan._id" (click)="delayClicked()">DELAY</button>
-                <button type="button" class="btn btn-danger" [disabled]="!selectedScan._id" (click)="redoClicked()">REDO</button>
+                <button type="button" class="btn" [ngClass]="(delayButtonState=='REDO')?'btn-danger':'btn-warning'" [disabled]="(delayButtonState=='NONE')"
+                    (click)="delayClicked()">{{(delayButtonState=='REDO')?'REDO':'PAUSE'}}</button>
+                <!-- <button type="button" class="btn btn-danger" [disabled]="!isRedoAvailable" (click)="redoClicked()">REDO</button> -->
                 <button type="button" class="btn btn-dark-grey" [disabled]="!selectedScan._id" (click)="cancelClicked()">CANCEL</button>
             </div>
         </div>

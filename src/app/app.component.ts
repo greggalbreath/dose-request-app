@@ -9,6 +9,7 @@ import * as moment from 'moment';
 
 import { TimeCoordinates } from './time-coordinates';
 import { DataService } from './shared/data.service';
+import { Dose } from './shared/models/dose';
 
 @Component({
     selector: 'app-root',
@@ -19,6 +20,8 @@ export class AppComponent {
     constructor(private dataService: DataService) { }
 
     public selectedScan: any = {};
+    public selectedAppt: any = {};
+    public delayButtonState: string = 'NONE';
 
     public transcriptClicked(): void {
         alert('TODO - show entire transcript');
@@ -27,19 +30,40 @@ export class AppComponent {
         alert('TODO - show chat window');
     }
     public delayClicked(): void {
-        this.dataService.delaySelectedScan(this.selectedScan);
+        if (this.delayButtonState === 'DELAY') {
+            this.dataService.delaySelectedScan(this.selectedScan);
+        } else if (this.delayButtonState === 'REDO') {
+            alert('TODO - REDO DOSE');
+        }
     }
-    public redoClicked(): void {
-        alert('TODO - REDO DOSE');
-    }
+
     public cancelClicked(): void {
         alert('TODO - CANCEL DOSE');
     }
     public menuButtonClicked(): void {
         alert('TODO - I don\'t know what this button is supposed to do.');
     }
-    public scanSelected(event): void {
-        this.selectedScan = this.dataService.getAppointmentFromScan(event._id);
+    public scanSelected(event: Dose): void {
+        if (event) {
+            // console.log(event);
+            if (event._id) {
+                this.selectedAppt = this.dataService.getAppointmentFromScan(event._id);
+                this.selectedScan = event;
+            }
+            if (event.schedule) {
+                if (event.schedule.beamOff.getTime() > (new Date()).getTime()) {
+                    this.delayButtonState = 'DELAY';
+                } else {
+                    this.delayButtonState = 'REDO';
+                }
+            } else {
+                this.delayButtonState = 'NONE';
+            }
+        } else {
+            this.selectedAppt = null;
+            this.selectedScan = null;
+            this.delayButtonState = 'NONE';
+        }
+        console.log(this.delayButtonState);
     }
-
 }

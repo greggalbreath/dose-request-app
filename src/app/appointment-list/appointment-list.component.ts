@@ -1,8 +1,9 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 import { DataService } from '../shared/data.service';
-import { MacaqueService } from '../shared/macaque.service';
-
+import { DoseDataService } from '../shared/dose-data.service';
+import { Appointment } from '../shared/models/appointment';
+import { Dose } from '../shared/models/dose';
 import { fadeInOut } from '../shared/animations/animations';
 
 @Component({
@@ -13,10 +14,10 @@ import { fadeInOut } from '../shared/animations/animations';
 })
 export class AppointmentListComponent implements OnInit {
 
-  constructor(private dataService: DataService, private macaqueService: MacaqueService) { }
+  constructor(private dataService: DataService, private doseDataService: DoseDataService) { }
 
-  public allAppointmentData: Array<any>
-  public transcriptData: Array<any>
+  public allAppointmentData: Array<Appointment>;
+  public transcriptData: Array<any>;
   @Input('status') listStatus: string;
   @Output() closed = new EventEmitter();
 
@@ -49,8 +50,8 @@ export class AppointmentListComponent implements OnInit {
       item.showStatus = 'inactive';
     }
   }
-  public requestDose(item: any): void {
-    this.macaqueService.requestDoses(item);
+  public requestDose(item: Appointment): void {
+    this.doseDataService.requestDoses(item);
     this.dataService.updateStatus(item._id, 'Requested');
     this.closeList();
   }

@@ -15,7 +15,7 @@ button {
     margin-left: 20px;
     color: #939393;
 }
-.btn-warning {
+.btn-warning, .btn-danger {
     margin-left: 140px;
 }
 .fixed-top {

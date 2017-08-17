@@ -9,7 +9,9 @@ import * as moment from 'moment';
 
 import { TimeCoordinates } from '../../time-coordinates';
 import { DataService } from '../../shared/data.service';
-import { MacaqueService } from '../../shared/macaque.service';
+import { DoseDataService } from '../../shared/dose-data.service';
+import { Appointment } from '../../shared/models/appointment';
+import { Dose } from '../../shared/models/dose';
 
 @Component({
   selector: 'app-dose-request-graphic',
@@ -19,7 +21,7 @@ import { MacaqueService } from '../../shared/macaque.service';
 
 export class DoseRequestGraphicComponent implements AfterViewInit {
 
-  constructor(private dataService: DataService, private macaqueService: MacaqueService) {
+  constructor(private dataService: DataService, private doseDataService: DoseDataService) {
   }
 
   @ViewChild('container') element: ElementRef;
@@ -43,9 +45,10 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
   private relativeStartMinutes = this.originalRelativeStartMinutes;
   private prevTransformK = 1.0;
 
-  public doseData: Array<any>;
-  public appointmentData: Array<any>;
-  public scanData: Array<any>;
+  private appointmentData: Array<Appointment>;
+  private doseData: Array<Dose>;
+  //this is an internally kept array for keeping track of the data for dose line (with all the milestones)
+  private displayedDoses: Array<any>;
   private selectedScan: any = {};
   private inited: boolean = false;
 
@@ -83,15 +86,18 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
 
 
     this.dataService.activeAppointmentData
-      .subscribe((data: any) => {
+      .subscribe((data: Array<Appointment>) => {
         this.appointmentData = data;
-        this.scanData = this.dataService.getActiveScans();
-        this.updateDoseDataArray();
+        this.doseData = this.dataService.getActiveDoses();
+        this.updateDisplayedDoses();
         this.drawSVG();
       });
-    this.macaqueService.displayedDoses //TODO probably throttle this
+    this.doseDataService.updatedDoses //TODO probably throttle this
       .subscribe((data: any) => {
-        this.doseData = data;
+        let foundDose = this.doseData.find(item => (item._id === data._dose));
+        foundDose.schedule = data.schedule;
+        foundDose.estimatedInjectionTime = data.estimatedInjectionTime; //TODO  see if vervet is sending this
+        this.updateDisplayedDoses();
         this.drawSVG();
       });
     this.dataService.queryData();
@@ -110,45 +116,47 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
   /**
    * update the dose data array with config info and x and length
    */
-  private updateDoseDataArray() {
+  private updateDisplayedDoses() {
 
-    if (!this.doseData) {
-      return;
-    }
-    if (this.doseData.length > this.configData.length) {
-      //limit the dose array to the length of the config
-      this.doseData.splice(this.configData.length);
-    }
-    console.log(this.doseData);
+    this.displayedDoses = new Array<any>();
+    for (let i = 0; i < this.doseData.length && this.displayedDoses.length < this.configData.length; i++) {
+      var doseItem: any = Object.assign({}, this.doseData[i]); //copy object
+      if (!doseItem.schedule) {
+        //no necessary info from vervet yet.
+        continue;
+      }
+      if (doseItem.schedule.expiration && doseItem.schedule.expiration.getTime() < (new Date()).getTime()) {
+        continue; //dose has expired so don't display
+      }
 
-    //update the doseData with config info for colors, etc
-    this.doseData.forEach((element, i) => {
-      element.x = this.timeCoordinates.getX(element.schedule.delivery)
-      element.minutesAway = (element.schedule.delivery.getTime() - (new Date()).getTime()) / 1000 / 60;
+      doseItem.x = this.timeCoordinates.getX(doseItem.schedule.delivery)
+      doseItem.minutesAway = (doseItem.schedule.delivery.getTime() - (new Date()).getTime()) / 1000 / 60;
       //copy the config data for convenience
-      element.color = this.configData[i].color;
-      element.arcColor = this.configData[i].arcColor;
-      element.y = this.configData[i].y;
+      doseItem.color = this.configData[i].color;
+      doseItem.arcColor = this.configData[i].arcColor;
+      doseItem.y = this.configData[i].y;
       //these are the milestone white dots
-      element.milestones = new Array<any>();
-      element.milestones.push({
+      doseItem.milestones = new Array<any>();
+      doseItem.milestones.push({
         description: 'beam on',
-        time: element.schedule.beamOn
+        time: doseItem.schedule.beamOn
       });
-      element.milestones.push({
+      doseItem.milestones.push({
         description: 'beam off',
-        time: element.schedule.beamOff
+        time: doseItem.schedule.beamOff
       });
-      element.milestones.push({
+      doseItem.milestones.push({
         description: 'synthesis',
-        time: element.schedule.synthesis
+        time: doseItem.schedule.synthesis
       });
-      element.milestones.push({
+      doseItem.milestones.push({
         description: 'dispatch',
-        time: element.schedule.dispatch
+        time: doseItem.schedule.dispatch
       });
-    });
+      this.displayedDoses.push(doseItem);
+    }
   }
+
 
   private zoomed() {
     if (D3.event.transform.k === 1 && D3.event.transform.x === 0) {
@@ -240,11 +248,11 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .attr('stroke', 'white')
       .attr('stroke-width', 2);
 
-    this.updateDoseDataArray();
-    if (this.doseData) {
+    this.updateDisplayedDoses();
+    if (this.displayedDoses) {
       //create gradient for dose box
       let gradient = this.svg.append('defs').selectAll('linearGradient')
-        .data(this.doseData)
+        .data(this.displayedDoses)
         .enter()
         .append('linearGradient')
         .attr('id', (d, i) => 'linear' + i)
@@ -273,7 +281,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       let scaledRadius = DoseRequestGraphicComponent.getCircleRadius(this.timeCoordinates.getWidth(this.pointerBoxWidthMinutes));
       //draw dose box
       let rect = this.svg.selectAll('doseRect')
-        .data(this.doseData)
+        .data(this.displayedDoses)
         .enter()
         .append('rect')
         .attr('x', d => d.x)
@@ -284,7 +292,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
 
       //vertical line at dose
       let vLine = this.svg.select('#gridlines').selectAll('vline')
-        .data(this.doseData)
+        .data(this.displayedDoses)
         .enter()
         .append('svg:line')
         .attr('x1', d => d.x)
@@ -296,7 +304,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
 
       //horizontal milestone line for a dose
       let hLine = this.svg.select('#gridlines').selectAll('hline')
-        .data(this.doseData)
+        .data(this.displayedDoses)
         .enter()
         .append('svg:line')
         .attr('x1', d => this.timeCoordinates.getX(d.schedule.beamOn))
@@ -308,7 +316,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
 
       //the white dose circle
       let circle = this.svg.selectAll('doseCircle')
-        .data(this.doseData)
+        .data(this.displayedDoses)
         .enter()
         .append('circle')
         .attr('cx', d => d.x)
@@ -318,7 +326,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
 
       //the label on the dose circle
       let arcText = this.svg.selectAll('arcText')
-        .data(this.doseData)
+        .data(this.displayedDoses)
         .enter()
         .append('text')
         .attr('x', d => d.x)
@@ -346,7 +354,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
 
       //the time arc surrounding a dose circle
       let arc = this.svg.selectAll('arcProgress')
-        .data(this.doseData)
+        .data(this.displayedDoses)
         .enter()
         .append('svg:path')
         .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')')
@@ -355,7 +363,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
 
       //the white milestone circles
       var nestedDose = this.svg.selectAll('nestedDose')
-        .data(this.doseData)
+        .data(this.displayedDoses)
         .enter()
         .append('g');
 
@@ -374,7 +382,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
 
       //arrival time pointer
       let arrivalPointer = this.svg.selectAll('arrivalPointer')
-        .data(this.doseData)
+        .data(this.displayedDoses)
         .enter()
         .append('svg:path')
         .attr('transform', d => 'translate(' + (d.x - (pointerBoxWidth / 2)) + ',' + (this.canvasHeight - pointerBoxHeight) + ')')
@@ -383,7 +391,7 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
 
       //the label on the arrival time pointer
       let arrivalTextBox = this.svg.selectAll('arrivalText')
-        .data(this.doseData)
+        .data(this.displayedDoses)
         .enter()
         .append('text')
         .attr('x', d => d.x)
@@ -423,6 +431,8 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       .style('font-size', '14px')
       .style('visibility', d => (pointerBoxWidth > 120) ? 'visible' : 'hidden')
       .text((d, i) => 'CURRENT TIME');
+
+    this.scanSelected.emit(this.selectedScan);
   }
 
   private drawAppointmentSVG(): void {
@@ -461,54 +471,54 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
       //.attr('text-anchor', 'middle')
       .text(d => d.name);
 
-    if (this.scanData) {
+    if (this.doseData) {
       let scanRect = this.svg.selectAll('scanRect')
-        .data(this.scanData)
+        .data(this.doseData)
         .enter()
         .append('svg:path')
-        .attr('transform', d => 'translate(' + this.timeCoordinates.getX(d.startTime) + ',' + (this.appointmentConfig.y + (this.circleRadius * .25)) + ')')
+        .attr('transform', d => 'translate(' + this.timeCoordinates.getX(d.getDisplayedStartTime()) + ',' + (this.appointmentConfig.y + (this.circleRadius * .25)) + ')')
         .attr('fill', this.appointmentConfig.color)
-        .attr('d', d => DoseRequestGraphicComponent.roundedRectTopPath(this.timeCoordinates.getWidth(d.length), 40));
+        .attr('d', d => DoseRequestGraphicComponent.roundedRectTopPath(this.timeCoordinates.getWidth(d.scanLength), 40));
 
       let scanRectBottom = this.svg.selectAll('scanRectBottom')
-        .data(this.scanData)
+        .data(this.doseData)
         .enter()
         .append('svg:path')
-        .attr('transform', d => 'translate(' + this.timeCoordinates.getX(d.startTime) + ',' + (this.appointmentConfig.y + (this.circleRadius * .25) + 40) + ')')
+        .attr('transform', d => 'translate(' + this.timeCoordinates.getX(d.getDisplayedStartTime()) + ',' + (this.appointmentConfig.y + (this.circleRadius * .25) + 40) + ')')
         .attr('fill', 'white')
-        .attr('d', d => DoseRequestGraphicComponent.roundedRectBottomPath(this.timeCoordinates.getWidth(d.length), 20));
+        .attr('d', d => DoseRequestGraphicComponent.roundedRectBottomPath(this.timeCoordinates.getWidth(d.scanLength), 20));
 
       let scanText = this.svg.selectAll('scanText')
-        .data(this.scanData)
+        .data(this.doseData)
         .enter()
         .append('text')
-        .attr('x', d => this.timeCoordinates.getX(d.startTime) + 5)
+        .attr('x', d => this.timeCoordinates.getX(d.getDisplayedStartTime()) + 5)
         .attr('y', d => (this.appointmentConfig.y + (this.circleRadius * .5) + 5))
-        .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 50) ? 'visible' : 'hidden')
+        .style('visibility', d => (this.timeCoordinates.getWidth(d.scanLength) > 50) ? 'visible' : 'hidden')
         .attr('fill', 'black')
         .style('font-size', '12px')
         .text(d => d.name)
         .append('tspan')
-        .attr('x', d => this.timeCoordinates.getX(d.startTime) + 5)
+        .attr('x', d => this.timeCoordinates.getX(d.getDisplayedStartTime()) + 5)
         .attr('y', d => (this.appointmentConfig.y + (this.circleRadius * 1.5) + 5))
-        .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 50) ? 'visible' : 'hidden')
+        .style('visibility', d => (this.timeCoordinates.getWidth(d.scanLength) > 50) ? 'visible' : 'hidden')
         .text(d => d.type)
         .append('tspan')
         .attr('text-anchor', 'end')
-        .attr('x', d => this.timeCoordinates.getX(d.startTime) + this.timeCoordinates.getWidth(d.length) - 5)
+        .attr('x', d => this.timeCoordinates.getX(d.getDisplayedStartTime()) + this.timeCoordinates.getWidth(d.scanLength) - 5)
         .attr('y', d => (this.appointmentConfig.y + (this.circleRadius * 1.5) + 5))
-        .style('visibility', d => (this.timeCoordinates.getWidth(d.length) > 100) ? 'visible' : 'hidden')
+        .style('visibility', d => (this.timeCoordinates.getWidth(d.scanLength) > 100) ? 'visible' : 'hidden')
         .text(d => d.activity + ' mCi');
     }
     let rectBorder = this.svg.selectAll('scanRect')
-      .data(this.scanData)
+      .data(this.doseData)
       .enter()
       .append('rect')
-      .attr('x', d => this.timeCoordinates.getX(d.startTime))
+      .attr('x', d => this.timeCoordinates.getX(d.getDisplayedStartTime()))
       .attr('y', (this.appointmentConfig.y + (this.circleRadius * .25)))
       .attr('rx', 8)
       .attr('ry', 8)
-      .attr('width', d => this.timeCoordinates.getWidth(d.length))
+      .attr('width', d => this.timeCoordinates.getWidth(d.scanLength))
       .attr('height', 60)
       .style('stroke', d => (d._id === this.selectedScan._id) ? DoseRequestGraphicComponent.COLOR_DARK_GRAY : 'none')
       .style('stroke-width', '1px')
@@ -517,14 +527,14 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
 
     //this is the clickable, invisiable component on top of the others
     let clickRect = this.svg.selectAll('scanClickableRect')
-      .data(this.scanData)
+      .data(this.doseData)
       .enter()
       .append('rect')
-      .attr('x', d => this.timeCoordinates.getX(d.startTime))
+      .attr('x', d => this.timeCoordinates.getX(d.getDisplayedStartTime()))
       .attr('y', (this.appointmentConfig.y + (this.circleRadius * .25)))
       .attr('rx', 8)
       .attr('ry', 8)
-      .attr('width', d => this.timeCoordinates.getWidth(d.length))
+      .attr('width', d => this.timeCoordinates.getWidth(d.scanLength))
       .attr('height', 60)
       .on('click', (d) => this.scanClicked(d))
       .attr('opacity', 0.0);
@@ -601,10 +611,11 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
     }
     return 10;
   }
-  private scanClicked(scanData): void {
-    if (scanData._id !== this.selectedScan._id) {
-      this.selectedScan = scanData;
-      this.scanSelected.emit(scanData);
+  private scanClicked(doseData: Dose): void {
+    if (doseData._id !== this.selectedScan._id) {
+      console.log(doseData);
+      this.selectedScan = doseData;
+      //drawSVG emits this event - this.scanSelected.emit(doseData);
       this.drawSVG();
     }
   }
