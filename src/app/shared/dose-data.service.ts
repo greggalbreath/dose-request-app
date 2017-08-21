@@ -20,6 +20,7 @@ export class DoseDataService {
   constructor() {
     if (!this.client) {
       this.client = mqtt.connect({ host: this.MACAQUE_SERVER, port: this.MACAQUE_PORT });
+
       this.client.on('connect', () => this.subscribe());
       this.client.on('message', (topic, message) => this.parseMessage(topic, message));
     }
@@ -37,23 +38,35 @@ export class DoseDataService {
         break;
       case 'response':
       default:
-        //TODO handle other messages
+        //TODO handle other messages from vervet
 
         break;
     }
   }
 
-  public requestDoses(appointmentData: Appointment): void {
-
+  /**
+   * Send update command to vervet for doses in appointment
+   * 
+   * @param {Appointment} appointmentData object that includes the doses array
+   * @param {Dose} [startWithDose] if this is provided, then don't send an update for all doses, but start with this provided dose
+   * 
+   * @memberOf DoseDataService
+   */
+  public sendVervetMessage(commandName: string, appointmentData: Appointment, startWithDose?: Dose): void {
     if (appointmentData.doses) {
-      for (let i = 0; i < appointmentData.doses.length; i++) {
-        let newMessage = {
-          name: "new",
-          payload: appointmentData.doses[i].getMacaquePayload()
-        };
-        this.client.publish(this.OUTGOING_TOPIC, JSON.stringify(newMessage));
+      let updateAllDoses: boolean = (!startWithDose);
+      for (let i = appointmentData.doses.length - 1; i >= 0; i--) {
+        if (!updateAllDoses) {
+          updateAllDoses = (startWithDose._id === appointmentData.doses[i]._id);
+        }
+        if (updateAllDoses) {
+          let newMessage = {
+            name: commandName,
+            payload: appointmentData.doses[i].getMacaquePayload()
+          };
+          this.client.publish(this.OUTGOING_TOPIC, JSON.stringify(newMessage));
+        }
       }
     }
   }
-
 }
