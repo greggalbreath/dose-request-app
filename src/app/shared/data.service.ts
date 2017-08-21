@@ -123,42 +123,41 @@ export class DataService {
         )
       ]),
   ]
+  public getEntireTranscript(): Array<any> {
+    return [
+      { time: new Date('2017/06/27 09:50:55'), message: 'Doses requested', name: 'Ernie Aguilar' },
+      { time: new Date('2017/06/27 09:51:12'), message: 'Rest dose in production', name: 'Ernie Aguilar' },
+      { time: new Date('2017/06/27 09:56:32'), message: 'Delay +3 minutes requested', name: 'Ernie Aguilar' },
+      { time: new Date('2017/06/27 10:07:00'), message: 'Synthesis Complete', name: 'Ernie Aguilar' },
+      { time: new Date('2017/06/27 10:11:50'), message: 'Rest dose dispatched', name: 'Ernie Aguilar' },
+      { time: new Date('2017/06/27 10:20:12'), message: 'Stress dose in production', name: 'Ernie Aguilar' },
+      { time: new Date('2017/06/27 10:26:00'), message: 'Synthesis Complete', name: 'Ernie Aguilar' },
+      { time: new Date('2017/06/27 10:29:35'), message: 'Stress dose dispatched', name: 'Ernie Aguilar' },
+      { time: new Date('2017/06/27 10:35:55'), message: 'Doses requested', name: 'Peter Parker' },
+      { time: new Date('2017/06/27 10:36:12'), message: 'Rest dose in production', name: 'Peter Parker' },
+      { time: new Date('2017/06/27 11:42:00'), message: 'Synthesis Complete', name: 'Peter Parker' },
+      { time: new Date('2017/06/27 11:44:50'), message: 'Rest dose dispatched', name: 'Peter Parker' },
+    ];
+  }
+
   public getTranscript(_id: string): any {
     if (_id === '1234') {
       return [
-        { time: new Date('2017/06/27 09:50:55'), message: 'Dose request sent' },
-        { time: new Date('2017/06/27 09:51:08'), message: 'Request acknowledged' },
+        { time: new Date('2017/06/27 09:50:55'), message: 'Doses requested' },
         { time: new Date('2017/06/27 09:51:12'), message: 'Rest dose in production' },
-        { time: new Date('2017/06/27 09:51:14'), message: 'Rest dose ETA 10:11 AM' },
-        { time: new Date('2017/06/27 09:51:15'), message: 'Stress dose ETA 10:31 AM' },
-        { time: new Date('2017/06/27 09:54:00'), message: 'Beam On' },
         { time: new Date('2017/06/27 09:56:32'), message: 'Delay +3 minutes requested' },
-        { time: new Date('2017/06/27 09:56:40'), message: 'Rest dose ETA 10:14 AM' },
-        { time: new Date('2017/06/27 09:56:41'), message: 'Stress dose ETA 10:34 AM' },
-        { time: new Date('2017/06/27 10:05:00'), message: 'Beam Off' },
         { time: new Date('2017/06/27 10:07:00'), message: 'Synthesis Complete' },
-        { time: new Date('2017/06/27 10:07:35'), message: 'Rest dose assay 34 mCi' },
-        { time: new Date('2017/06/27 10:11:15'), message: 'QC complete' },
         { time: new Date('2017/06/27 10:11:50'), message: 'Rest dose dispatched' },
-        { time: new Date('2017/06/27 10:11:51'), message: 'Rest dose ETA 10:14:20 AM' }
+        { time: new Date('2017/06/27 10:20:12'), message: 'Stress dose in production' },
+        { time: new Date('2017/06/27 10:26:00'), message: 'Synthesis Complete' },
+        { time: new Date('2017/06/27 10:29:35'), message: 'Stress dose dispatched' },
       ];
     } else if (_id === '2345') {
       return [
-        { time: new Date('2017/06/27 10:25:55'), message: 'Dose request sent' },
-        { time: new Date('2017/06/27 10:26:08'), message: 'Request acknowledged' },
-        { time: new Date('2017/06/27 10:26:12'), message: 'Rest dose in production' },
-        { time: new Date('2017/06/27 10:26:14'), message: 'Rest dose ETA 11:47 AM' },
-        { time: new Date('2017/06/27 10:26:15'), message: 'Stress dose ETA 12:02 PM' },
-        { time: new Date('2017/06/27 10:29:00'), message: 'Beam On' },
-        { time: new Date('2017/06/27 10:31:32'), message: 'Delay +3 minutes requested' },
-        { time: new Date('2017/06/27 10:31:40'), message: 'Rest dose ETA 11:50 AM' },
-        { time: new Date('2017/06/27 10:31:41'), message: 'Stress dose ETA 12:05 PM' },
-        { time: new Date('2017/06/27 11:40:00'), message: 'Beam Off' },
+        { time: new Date('2017/06/27 10:35:55'), message: 'Doses requested' },
+        { time: new Date('2017/06/27 10:36:12'), message: 'Rest dose in production' },
         { time: new Date('2017/06/27 11:42:00'), message: 'Synthesis Complete' },
-        { time: new Date('2017/06/27 11:42:35'), message: 'Rest dose assay 34 mCi' },
-        { time: new Date('2017/06/27 11:47:15'), message: 'QC complete' },
-        { time: new Date('2017/06/27 11:47:50'), message: 'Rest dose dispatched' },
-        { time: new Date('2017/06/27 11:47:51'), message: 'Rest dose ETA 11:51:20 AM' }
+        { time: new Date('2017/06/27 11:44:50'), message: 'Rest dose dispatched' },
       ];
     }
     return [];

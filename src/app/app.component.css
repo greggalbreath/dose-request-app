@@ -1,9 +1,6 @@
 * {
     --color: white;
 }
-.material-icons { 
-  font-size: 24px; 
-}
 .btn {
     margin: 20px;
 }
@@ -12,11 +9,15 @@ button {
     height: 50px;
 }
 .material-icons {
+  font-size: 24px; 
     margin-left: 20px;
     color: #939393;
 }
 .btn-warning, .btn-danger {
     margin-left: 140px;
+}
+.md-sidenav {
+    background: white;
 }
 .fixed-top {
     height: 60px;

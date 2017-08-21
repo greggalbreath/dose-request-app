@@ -17,8 +17,9 @@
         <i class="btn material-icons" (click)="menuButtonClicked()">more_vert</i>
     </nav>
 
-    <md-sidenav align="end" #appointmentSidenav>
-        <app-appointment-list (closed)="appointmentSidenav.close()"></app-appointment-list>
+    <md-sidenav align="end" #sidenav>
+        <app-appointment-list *ngIf="sideNavState==='appointment'" (closed)="sidenav.close()"></app-appointment-list>
+        <app-transcript-panel *ngIf="sideNavState==='transcript'" (closed)="sidenav.close()"></app-transcript-panel>
     </md-sidenav>
     <div class="my-body-content">
         <app-dose-request-graphic (scanSelected)="scanSelected($event)"></app-dose-request-graphic>
@@ -28,13 +29,13 @@
         <div class="fixed-bottom">
             <app-dose-request-appointment-bar [data]="selectedAppt"></app-dose-request-appointment-bar>
             <div class="button-group">
-                <i class="btn material-icons" (click)="appointmentSidenav.open()">date_range</i>
+                <i class="btn material-icons" (click)="sideNavState='appointment';sidenav.open()">date_range</i>
                 <i class="btn material-icons" (click)="chatClicked()">chat_bubble</i>
-                <i class="btn material-icons" (click)="transcriptClicked()">list</i>
+                <i class="btn material-icons" (click)="sideNavState='transcript';sidenav.open()">list</i>
                 <button type="button" class="btn" [ngClass]="(delayButtonState=='REDO')?'btn-danger':'btn-warning'" [disabled]="(delayButtonState=='NONE')"
                     (click)="delayClicked()">{{(delayButtonState=='REDO')?'REDO':'PAUSE'}}</button>
                 <!-- <button type="button" class="btn btn-danger" [disabled]="!isRedoAvailable" (click)="redoClicked()">REDO</button> -->
-                <button type="button" class="btn btn-dark-grey" [disabled]="!selectedScan._id" (click)="cancelClicked()">CANCEL</button>
+                <button type="button" class="btn btn-dark-grey" [disabled]="selectedDose && !selectedDose._id" (click)="cancelClicked()">CANCEL</button>
             </div>
         </div>
     </nav>

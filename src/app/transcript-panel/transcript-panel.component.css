@@ -1,0 +1,33 @@
+#main {
+    display: block;
+    height: 100%;
+    width: 460px;
+    padding: 60px 10px 10px 10px;
+    background: white;
+    overflow-y: scroll;
+}
+.agenda-title {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 60px;
+    width: 100%;
+    background: #1bdbae;
+    color: white;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+}
+i:hover {
+    cursor: pointer;
+}
+.titles {
+    background: rgba( 240, 240, 240, 0.9);
+}
+.row {
+    margin: 5px 0;
+}
+ul {
+  list-style-type: none;
+}
+

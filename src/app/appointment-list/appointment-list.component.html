@@ -5,7 +5,7 @@
   </div>
 
   <ul class="list-group">
-    <li *ngFor="let item of allAppointmentData" class="list-group-item" [ngClass]="{'active-border': item.status=='Active'}"
+    <li *ngFor="let item of allAppointmentData" class="list-group-item" [ngClass]="{'active-border': item.status=='Requested'}"
       (mouseenter)="onMouseChange(item, true)" (mouseleave)="onMouseChange(item, false)">
 
       <div>

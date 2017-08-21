@@ -51,7 +51,7 @@ export class AppointmentListComponent implements OnInit {
     }
   }
   public requestDose(item: Appointment): void {
-    this.doseDataService.requestDoses(item);
+    this.doseDataService.sendVervetMessage('new', item);
     this.dataService.updateStatus(item._id, 'Requested');
     this.closeList();
   }

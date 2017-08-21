@@ -10,13 +10,15 @@ import { DoseDataService } from './shared/dose-data.service';
 import { DoseRequestGraphicComponent } from './dose-request/dose-request-graphic/dose-request-graphic.component';
 import { DoseRequestAppointmentBarComponent } from './dose-request/dose-request-appointment-bar/dose-request-appointment-bar.component';
 import { AppointmentListComponent } from './appointment-list/appointment-list.component';
+import { TranscriptPanelComponent } from './transcript-panel/transcript-panel.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DoseRequestGraphicComponent,
     DoseRequestAppointmentBarComponent,
-    AppointmentListComponent
+    AppointmentListComponent,
+    TranscriptPanelComponent
   ],
   imports: [
     BrowserModule,

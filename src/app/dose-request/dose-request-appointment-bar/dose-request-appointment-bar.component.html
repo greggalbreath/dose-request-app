@@ -1,5 +1,5 @@
 <div style="background:#939393; height:50px">
-  <p *ngIf="data.name">
+  <p *ngIf="data">
     Patient:&nbsp;&nbsp;<b>{{data.name}}</b>&nbsp;&nbsp;&raquo;&nbsp;&nbsp;Status:&nbsp;&nbsp;<b>{{data.status}}</b>&nbsp;&nbsp;&raquo;&nbsp;&nbsp;Protocol:&nbsp;&nbsp;
     <b>{{data.protocol}}</b>&nbsp;&nbsp;&raquo;
     <span *ngIf="data.scans && data.scans.length>0">&nbsp;&nbsp;{{data.scans[0].type}}&nbsp;:&nbsp;{{data.scans[0].activity}}</span>

@@ -1,0 +1,20 @@
+<div id="main">
+  <div class="agenda-title vertical-align d-flex justify-content-between">
+    Transcript
+    <i class="material-icons mr-2" (click)="closeList()">close</i>
+  </div>
+
+  <div>
+    <div class="row titles">
+      <div class="col-3"><small>Time</small></div>
+      <div class="col-5"><small>Description</small></div>
+      <div class="col-4"><small>Name</small></div>
+    </div>
+    <div class="row" *ngFor="let transcriptItem of transcriptData">
+      <div class="col-3"><small>{{transcriptItem.time | date:"hh:mm:ss a"}}</small></div>
+      <div class="col-5"><small>{{transcriptItem.message}}</small></div>
+      <div class="col-4"><small>{{transcriptItem.name}}</small></div>
+    </div>
+  </div>
+
+</div>
