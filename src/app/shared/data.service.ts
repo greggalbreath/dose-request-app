@@ -37,6 +37,40 @@ export class DataService {
     this.activeAppointmentData.next(this.getActiveAppointments());
 
   }
+  public demoChatData: Array<any> = [
+    {
+      text: 'Our morning QA is complete and we are ready to get started.',
+      user: 'operator',
+      timestamp: new Date('2017/06/27 09:05'),
+    },
+    {
+      text: 'Next patient arrived 5 minutes late.',
+      user: 'clinic',
+      timestamp: new Date('2017/06/27 09:42'),
+    },
+    {
+      text: 'okay',
+      user: 'operator',
+      timestamp: new Date('2017/06/27 09:43'),
+    },
+    {
+      text: 'Will it work out if we add a patient late in the afternoon?',
+      user: 'clinic',
+      timestamp: new Date('2017/06/27 09:50'),
+    },
+    {
+      text: 'That will be fine.',
+      user: 'operator',
+      timestamp: new Date('2017/06/27 09:52'),
+    },
+    {
+      text: 'We had a problem with the last patient and weren\'t able to use the last dose before it expired. We will request again.',
+      user: 'clinic',
+      timestamp: new Date('2017/06/27 10:40'),
+    },
+
+  ];
+
   public allAppointmentData: Array<Appointment> = [
     new Appointment(
       '1234',
