@@ -42,7 +42,7 @@ i:hover {
     font-size: 12px;
 }
 ul {
-  list-style-type: none;
+    list-style-type: none;
 }
 .action-btn:hover {
     cursor: pointer;

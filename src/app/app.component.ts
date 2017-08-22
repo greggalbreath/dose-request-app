@@ -2,7 +2,6 @@ import { Component, AfterViewInit, ElementRef, ViewChild, OnInit } from '@angula
 import * as D3 from 'd3';
 import { Path, Selection } from 'd3';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/timer'
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/take'
 import * as moment from 'moment';

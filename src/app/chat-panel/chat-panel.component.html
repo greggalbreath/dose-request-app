@@ -1,9 +1,9 @@
-<div id="main">
-  <div class="agenda-title vertical-align d-flex justify-content-between">
-    Chat
-    <i class="material-icons mr-2" (click)="closeList()">close</i>
-  </div>
-<!-- 
+<div class="agenda-title vertical-align d-flex justify-content-between">
+  Chat
+  <i class="material-icons mr-2" (click)="closeList()">close</i>
+</div>
+<div id="main" class="material-card">
+  <!-- 
   <ul class="list-group">
     <li *ngFor="let item of chatData" class="list-group-item" [ngClass]="{'clinic-entry': item.user==='clinic','other-entry': item.user!=='clinic'}">
       <div>
@@ -11,7 +11,7 @@
       </div>
     </li>
   </ul> -->
-  <div *ngFor="let item of chatData" class="row" >
+  <div *ngFor="let item of chatData" class="row">
     <div class="col-3" *ngIf="item.user==='clinic'">&nbsp;</div>
     <div class="col-9" [ngClass]="{'clinic-entry': item.user==='clinic','other-entry': item.user!=='clinic'}"><small>{{item.text}}</small></div>
     <div class="col-3" *ngIf="item.user!=='clinic'">&nbsp;</div>
@@ -20,4 +20,8 @@
     <div class="col-6 time-label" [style.text-align]="item.user==='clinic'?'right':'left'">{{item.timestamp | date:"hh:mm a"}}</div>
     <div class="col-6" *ngIf="item.user!=='clinic'">&nbsp;</div>
   </div>
+</div>
+<div class="new-message fixed-bottom vertical-align d-flex justify-content-between">
+  <textarea #newMessageText type="text" (keyup)="textAreaKeyPress($event.key)"></textarea>
+  <i class="material-icons mr-2" (click)="sendMessage()">send</i>
 </div>
