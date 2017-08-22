@@ -64,7 +64,7 @@ export class DataService {
       timestamp: new Date('2017/06/27 09:52'),
     },
     {
-      text: 'We had a problem with the last patient and weren\'t able to use the last dose before it expired. We will request again.',
+      text: 'We had a problem with the last patient and weren\'t able to use the rest dose before it expired. We will request again.',
       user: 'clinic',
       timestamp: new Date('2017/06/27 10:40'),
     },

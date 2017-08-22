@@ -19,6 +19,7 @@
 
     <md-sidenav align="end" #sidenav>
         <app-appointment-list *ngIf="sideNavState==='appointment'" (closed)="sidenav.close()"></app-appointment-list>
+        <app-chat-panel *ngIf="sideNavState==='chat'" (closed)="sidenav.close()"></app-chat-panel>
         <app-transcript-panel *ngIf="sideNavState==='transcript'" (closed)="sidenav.close()"></app-transcript-panel>
     </md-sidenav>
     <div class="my-body-content">
@@ -30,7 +31,7 @@
             <app-dose-request-appointment-bar [data]="selectedAppt"></app-dose-request-appointment-bar>
             <div class="button-group">
                 <i class="btn material-icons" (click)="sideNavState='appointment';sidenav.open()">date_range</i>
-                <i class="btn material-icons" (click)="chatClicked()">chat_bubble</i>
+                <i class="btn material-icons" (click)="sideNavState='chat';sidenav.open()">chat_bubble</i>
                 <i class="btn material-icons" (click)="sideNavState='transcript';sidenav.open()">list</i>
                 <button type="button" class="btn" [ngClass]="(delayButtonState=='REDO')?'btn-danger':'btn-warning'" [disabled]="(delayButtonState=='NONE')"
                     (click)="delayClicked()">{{(delayButtonState=='REDO')?'REDO':'PAUSE'}}</button>

@@ -1,0 +1,46 @@
+#main {
+    display: block;
+    height: 100%;
+    width: 320px;
+    padding: 60px 10px 10px 10px;
+    overflow-y: scroll;
+}
+.agenda-title {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 60px;
+    width: 100%;
+    background: #1bdbae;
+    color: white;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+}
+i:hover {
+    cursor: pointer;
+}
+
+ul {
+  list-style-type: none;
+}
+.row {
+    margin: 2px;
+    padding: 2px;
+    
+}
+.clinic-entry {
+    text-align: right;
+    background: #f0f0f0;
+    border-radius: 8px;
+}
+.other-entry {
+    text-align: left;
+    background-color: #1bdbae;
+    color: white;
+    border-radius: 8px;
+}
+.time-label {
+    font-size: x-small;
+}
+

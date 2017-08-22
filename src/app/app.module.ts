@@ -11,6 +11,7 @@ import { DoseRequestGraphicComponent } from './dose-request/dose-request-graphic
 import { DoseRequestAppointmentBarComponent } from './dose-request/dose-request-appointment-bar/dose-request-appointment-bar.component';
 import { AppointmentListComponent } from './appointment-list/appointment-list.component';
 import { TranscriptPanelComponent } from './transcript-panel/transcript-panel.component';
+import { ChatPanelComponent} from './chat-panel/chat-panel.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { TranscriptPanelComponent } from './transcript-panel/transcript-panel.co
     DoseRequestGraphicComponent,
     DoseRequestAppointmentBarComponent,
     AppointmentListComponent,
-    TranscriptPanelComponent
+    TranscriptPanelComponent,
+    ChatPanelComponent
   ],
   imports: [
     BrowserModule,
