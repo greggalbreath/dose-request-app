@@ -3,39 +3,43 @@
     Agenda
     <i class="material-icons mr-2" (click)="closeClicked()">close</i>
   </div>
+  <div class="list-group-container">
+    <ul class="list-group">
+      <li *ngFor="let item of allAppointmentData" class="list-group-item" [ngClass]="{'active-border': item.status=='Active'}" (mouseenter)="onMouseChange(item, true)" (mouseleave)="onMouseChange(item, false)">
 
-  <ul class="list-group">
-    <li *ngFor="let item of allAppointmentData" class="list-group-item" [ngClass]="{'active-border': item.status=='Active'}" (mouseenter)="onMouseChange(item, true)" (mouseleave)="onMouseChange(item, false)">
-
-      <div>
-        <div class="w-100">
-          <small class="row list-group-item-text">Patient:&nbsp;<b>{{item.name}}</b></small>
+        <div>
+          <div class="w-100">
+            <small class="row list-group-item-text">Patient:&nbsp;<b>{{item.name}}</b></small>
+          </div>
+          <div class="w-100">
+            <small class="row list-group-item-text">Status:&nbsp;<b>{{item.status}}</b></small>
+          </div>
+          <div class="w-100">
+            <small class="row list-group-item-text">Protocol:&nbsp;<b>{{item.protocol}}</b></small>
+          </div>
+          <div class="w-100">
+            <small class="row list-group-item-text">Status:&nbsp;<b>{{item.startTime | date:"shortTime"}}</b></small>
+          </div>
+          <div class="w-100" *ngIf="(item.status == 'Scheduled')" [@fadeInOut]="item.showStatus">
+            <button id="doseButton" type="button" class="btn action-btn" (click)="requestDose(item)">REQUEST DOSE</button>
+          </div>
+          <div class="w-100" *ngIf="(item.status == 'Complete')" [@fadeInOut]="item.showStatus">
+            <button type="button" class="btn action-btn btn-dark-grey" (click)="transcriptButtonClicked(item)">{{item.transcriptVisible ? 'CLOSE' : 'VIEW'}} TRANSCRIPT</button>
+          </div>
+          <div id="transcriptList" class="w-100" *ngIf="item.transcriptVisible" [@fadeInOut]="item.transcriptVisible">
+            <ul class="list-group">
+              <li *ngFor="let transcriptItem of transcriptData">
+                <div class="w-100">
+                  <small class="row list-group-item-text">{{transcriptItem.time | date:"hh:mm:ss a"}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{transcriptItem.message}}</small>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
-        <div class="w-100">
-          <small class="row list-group-item-text">Status:&nbsp;<b>{{item.status}}</b></small>
-        </div>
-        <div class="w-100">
-          <small class="row list-group-item-text">Protocol:&nbsp;<b>{{item.protocol}}</b></small>
-        </div>
-        <div class="w-100">
-          <small class="row list-group-item-text">Status:&nbsp;<b>{{item.startTime | date:"shortTime"}}</b></small>
-        </div>
-        <div class="w-100" *ngIf="(item.status == 'Scheduled')" [@fadeInOut]="item.showStatus">
-          <button id="doseButton" type="button" class="btn action-btn" (click)="requestDose(item)">REQUEST DOSE</button>
-        </div>
-        <div class="w-100" *ngIf="(item.status == 'Complete')" [@fadeInOut]="item.showStatus">
-          <button type="button" class="btn action-btn btn-dark-grey" (click)="transcriptButtonClicked(item)">{{item.transcriptVisible ? 'CLOSE' : 'VIEW'}} TRANSCRIPT</button>
-        </div>
-        <div id="transcriptList" class="w-100" *ngIf="item.transcriptVisible" [@fadeInOut]="item.transcriptVisible">
-          <ul class="list-group">
-            <li *ngFor="let transcriptItem of transcriptData">
-              <div class="w-100">
-                <small class="row list-group-item-text">{{transcriptItem.time | date:"hh:mm:ss a"}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{transcriptItem.message}}</small>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </li>
-  </ul>
+      </li>
+    </ul>
+  </div>
+  <div class="p-2 pt-0">
+    <button class="btn btn-success btn-block">this is a fixed-bottom button</button>
+  </div>
 </div>
