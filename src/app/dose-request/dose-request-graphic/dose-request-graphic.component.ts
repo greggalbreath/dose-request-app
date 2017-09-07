@@ -88,15 +88,16 @@ export class DoseRequestGraphicComponent implements AfterViewInit {
     this.dataService.activeAppointmentData
       .subscribe((data: Array<Appointment>) => {
         this.appointmentData = data;
-        this.doseData = this.dataService.getActiveDoses();
+//        this.doseData = this.dataService.getActiveDoses();
         this.updateDisplayedDoses();
         this.drawSVG();
       });
     this.doseDataService.updatedDoses //TODO probably throttle this
       .subscribe((data: any) => {
-        let foundDose = this.doseData.find(item => (item._id === data._dose));
-        foundDose.schedule = data.schedule;
-        foundDose.estimatedInjectionTime = data.estimatedInjectionTime; //TODO  see if vervet is sending this
+        // let foundDose = this.doseData.find(item => (item._id === data._dose));
+        // foundDose.schedule = data.schedule;
+        // foundDose.estimatedInjectionTime = data.estimatedInjectionTime;
+        this.doseData = data;
         this.updateDisplayedDoses();
         this.drawSVG();
       });

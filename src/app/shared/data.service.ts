@@ -168,27 +168,27 @@ export class DataService {
     return this.allAppointmentData.filter(item => (item.status === 'Active' || item.status === 'Requested'));
   }
 
-  public getActiveDoses(): Array<Dose> {
-    let appointments: Array<Appointment> = this.allAppointmentData.filter(item => (item.status === 'Active' || item.status === 'Requested'));
-    let doses: Array<Dose> = [];
-    if (appointments) {
-      for (let i = 0; i < appointments.length; i++) {
-        if (appointments[i].doses) {
-          for (var j = 0; j < appointments[i].doses.length; j++) {
-            doses.push(appointments[i].doses[j]);
-          }
-        }
-      }
-    }
-    return doses;
-  }
+  // public getActiveDoses(): Array<Dose> {
+  //   let appointments: Array<Appointment> = this.allAppointmentData.filter(item => (item.status === 'Active' || item.status === 'Requested'));
+  //   let doses: Array<Dose> = [];
+  //   if (appointments) {
+  //     for (let i = 0; i < appointments.length; i++) {
+  //       if (appointments[i].doses) {
+  //         for (var j = 0; j < appointments[i].doses.length; j++) {
+  //           doses.push(appointments[i].doses[j]);
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return doses;
+  // }
 
-  public delaySelectedScan(selectedScan: Dose): void {
-    console.log(selectedScan);
-    selectedScan.requestedInjectionTime = new Date(selectedScan.getDisplayedStartTime().getTime() + (this.SEC_SCAN_DELAY_DURATION * this.SEC_TO_MS));
-    this.fixScanSpacing();
-    this.activeAppointmentData.next(this.getActiveAppointments());
-  }
+  // public delaySelectedScan(selectedScan: Dose): void {
+  //   console.log(selectedScan);
+  //   selectedScan.requestedInjectionTime = new Date(selectedScan.getDisplayedStartTime().getTime() + (this.SEC_SCAN_DELAY_DURATION * this.SEC_TO_MS));
+  //   this.fixScanSpacing();
+  //   this.activeAppointmentData.next(this.getActiveAppointments());
+  // }
 
   public getAppointmentFromScan(doseId: string): Appointment {
     let appointments: Array<Appointment> = this.allAppointmentData;

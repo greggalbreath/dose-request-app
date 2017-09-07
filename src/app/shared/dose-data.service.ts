@@ -15,7 +15,13 @@ export class DoseDataService {
   private readonly MACAQUE_SERVER = 'localhost';
   private readonly MACAQUE_PORT = 8080;
 
+  private readonly MIN_TO_MS = 60000;
+  private readonly SEC_TO_MS = 1000;
+  private SEC_SCAN_DELAY_DURATION = 300; //amount of time to delay a scan when user requests a "delay"
+
+
   public updatedDoses: Subject<any> = new Subject();
+  private doseQueue: Array<Dose>;
 
   constructor() {
     if (!this.client) {
@@ -34,7 +40,11 @@ export class DoseDataService {
     let incomingItem: any = Utility.fixData(JSON.parse(message.toString()));
     switch (incomingItem.name) {
       case 'update':
-        this.updatedDoses.next(incomingItem);
+
+        let foundDose = this.doseQueue.find(item => (item._id === incomingItem._dose));
+        foundDose.schedule = incomingItem.schedule;
+
+        this.updatedDoses.next(this.doseQueue);
         break;
       case 'response':
       default:
@@ -52,7 +62,7 @@ export class DoseDataService {
    * 
    * @memberOf DoseDataService
    */
-  public sendVervetMessage(commandName: string, appointmentData: Appointment, startWithDose?: Dose): void {
+  private sendVervetMessage(commandName: string, appointmentData: Appointment, startWithDose?: Dose): void {
     if (appointmentData.doses) {
       let updateAllDoses: boolean = (!startWithDose);
       for (let i = appointmentData.doses.length - 1; i >= 0; i--) {
@@ -67,6 +77,103 @@ export class DoseDataService {
           this.client.publish(this.OUTGOING_TOPIC, JSON.stringify(newMessage));
         }
       }
+    }
+  }
+  public demoOnlySendCancel(appointmentData: Appointment): void {
+    if (appointmentData.doses) {
+      for (let i = 0; i < appointmentData.doses.length; i++) {
+        let newMessage = {
+          name: 'cancel',
+          payload: appointmentData.doses[i].getMacaquePayload()
+        };
+        this.client.publish(this.OUTGOING_TOPIC, JSON.stringify(newMessage));
+      }
+    }
+  }
+
+  public requestDoses(appointmentData: Appointment): void {
+    for (let i = 0; i < appointmentData.doses.length; i++) {
+      let foundDose = this.doseQueue.find(item => (item._id === appointmentData[i]._dose));
+      if (!foundDose) {
+        //dose is not in queue
+        this.doseQueue.push(appointmentData.doses[i]);
+      }
+    }
+    this.sendVervetMessagesFromQueue();
+  }
+
+  public cancelDoses(appointmentData: Appointment): void {
+    for (let i = 0; i < this.doseQueue.length; i++) {
+      if (this.doseQueue[i]._appointment === appointmentData._id) {
+        this.doseQueue[i].status = 'cancel';
+      }
+    }
+    this.sendVervetMessagesFromQueue();
+  }
+
+  public delayDose(selectedScan: Dose): void {
+
+    let foundDose = this.doseQueue.find(item => (item._id === selectedScan._id));
+    if (foundDose) {
+      foundDose.requestedInjectionTime = new Date(foundDose.getDisplayedStartTime().getTime() + (this.SEC_SCAN_DELAY_DURATION * this.SEC_TO_MS));
+      foundDose.status = 'modify';
+      this.sendVervetMessagesFromQueue();
+      //TODO fixScanSpacing();
+      //TODO update subsequent doses
+    }
+  }
+
+  private sendVervetMessagesFromQueue(): void {
+    if (this.doseQueue) {
+      for (let i = this.doseQueue.length - 1; i < 1; i++) {
+        //cancel all doses other than first
+        let newMessage = {
+          name: 'cancel',
+          payload: this.doseQueue[i].getMacaquePayload()
+        };
+        this.client.publish(this.OUTGOING_TOPIC, JSON.stringify(newMessage));
+      }
+
+      if (this.doseQueue.length > 0) {
+        let command = 'new';
+        switch (this.doseQueue[0].status) {
+          case 'none':
+            command = 'new';
+            break;
+          case 'modify':
+            if (this.doseQueue[0].schedule.beamOff.getTime() > (new Date()).getTime()) {
+              command = 'update';
+            } else {
+              command = 'redo';
+            }
+            break;
+          case 'cancel':
+            command = 'cancel';
+            break;
+        }
+        let newMessage = {
+          name: command,
+          payload: this.doseQueue[0].getMacaquePayload()
+        };
+        this.client.publish(this.OUTGOING_TOPIC, JSON.stringify(newMessage));
+        if (command !== 'cancel') {
+          this.doseQueue[0].status = 'requested';
+        }
+      }
+      for (let i = 1; i < this.doseQueue.length; i++) {
+        if (this.doseQueue[0].status !== 'cancel') {
+          //send a 'new' for doses other than first or cancelled
+          let newMessage = {
+            name: 'new',
+            payload: this.doseQueue[i].getMacaquePayload()
+          };
+          this.client.publish(this.OUTGOING_TOPIC, JSON.stringify(newMessage));
+          this.doseQueue[i].status = 'requested';
+        }
+      }
+      //remove 'cancel' from queue
+      this.doseQueue = this.doseQueue.filter(item => (item.status !== 'cancel'));
+      this.updatedDoses.next(this.doseQueue);
     }
   }
 }

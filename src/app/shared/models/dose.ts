@@ -12,8 +12,8 @@ export class Dose {
     public productID: string = 'ammonia';	    // product (ammonia, FDG)
     public clinicID: string = 'mainClinic';	    // clinic that submits the dose request
     public _appointment: string;
-    public estimatedInjectionTime: Date; //TODO this needs to be updated by vervet
     public schedule: any; // milestone array returned by vervet
+    public status: string = 'none';
 
     constructor(_id: string, _appointment: string, name: string, type: string, activity: number, requestedInjectionTime: Date) {
         this._id = _id;
@@ -38,8 +38,8 @@ export class Dose {
         };
     }
     public getDisplayedStartTime(): Date {
-        if (this.estimatedInjectionTime) {
-            return this.estimatedInjectionTime;
+        if (this.schedule.injection) {
+            return this.schedule.injection;
         }
         return this.requestedInjectionTime;
     }

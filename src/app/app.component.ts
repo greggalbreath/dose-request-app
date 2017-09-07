@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
         for (let i = 0; i < this.dataService.allAppointmentData.length; i++) {
             let element = this.dataService.allAppointmentData[i];
             if (element.status !== 'Complete') {
-                this.doseDataService.sendVervetMessage('cancel', element);
+                this.doseDataService.demoOnlySendCancel(element);
             }
         }
     }
@@ -52,26 +52,29 @@ export class AppComponent implements OnInit {
             return;
         }
 
-        this.dataService.delaySelectedScan(this.selectedDose);
+        this.doseDataService.delayDose(this.selectedDose);
+        
+        //old
+        // this.dataService.delaySelectedScan(this.selectedDose);
 
-        let activeAppts: Array<Appointment> = this.dataService.getActiveAppointments();
-        let foundFirst = false;
-        for (var i = activeAppts.length - 1; i >= 0; i--) {
-            if (foundFirst) {
-                //update all subsequent doses as they may have been moved
-                this.doseDataService.sendVervetMessage(commandName, activeAppts[i]);
-            }
+        // let activeAppts: Array<Appointment> = this.dataService.getActiveAppointments();
+        // let foundFirst = false;
+        // for (var i = activeAppts.length - 1; i >= 0; i--) {
+        //     if (foundFirst) {
+        //         //update all subsequent doses as they may have been moved
+        //         this.doseDataService.sendVervetMessage(commandName, activeAppts[i]);
+        //     }
 
-            if (activeAppts[i]._id === this.selectedAppt._id) {
-                this.doseDataService.sendVervetMessage(commandName, activeAppts[i], this.selectedDose);
-                foundFirst = true;
-            }
-        }
+        //     if (activeAppts[i]._id === this.selectedAppt._id) {
+        //         this.doseDataService.sendVervetMessage(commandName, activeAppts[i], this.selectedDose);
+        //         foundFirst = true;
+        //     }
+        // }
     }
 
 
     public cancelClicked(): void {
-        this.doseDataService.sendVervetMessage('cancel', this.selectedAppt, this.selectedDose);
+        this.doseDataService.cancelDoses(this.selectedAppt);
         this.dataService.updateStatus(this.selectedAppt._id, 'Scheduled');
     }
 
